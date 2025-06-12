@@ -162,7 +162,7 @@ For detailed setup instructions, see the [Backend README](backend/README.md) and
   <table>
     <tr>
       <td align="center">
-        <a href="#">
+        <a href="https://github.com/lms651">
           <img src="./banners/lori.png" width="100px;" alt="Team Member"/>
           <br />
           <sub><b>Lori Schmidt</b></sub>
@@ -189,7 +189,7 @@ For detailed setup instructions, see the [Backend README](backend/README.md) and
         <sub>QA Engineer</sub>
       </td>
       <td align="center">
-        <a href="#">
+        <a href="https://github.com/jxc1687">
           <img src="./banners/jiawei.png" width="100px;" alt="Team Member"/>
           <br />
           <sub><b>Jiawei Cheng</b></sub>
