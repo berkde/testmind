@@ -54,18 +54,26 @@ Our mission is to streamline the software testing process by automatically gener
 
 ##  Architecture
 
-```mermaid
+<details>
+<summary>Click to expand</summary>
+
+<pre>
 graph TD
 A[Natural Language Requirements] --> B[FastAPI Backend]
 B --> C[HuggingFace NLP Pipeline]
 C --> D[OpenAI GPT API]
 B --> E[Test Case Generator]
 D --> G[React Frontend (UI)]
-```
+</pre> </details>
+
 
 ## Repository Structure
 
-```mermaid
+
+<details>
+<summary>Click to expand</summary>
+
+<pre>
 testmind/
 ├── backend/
 │   ├── app/
@@ -105,7 +113,7 @@ testmind/
 ├── README.md                    # Project overview
 ├── .gitignore
 └── LICENSE
-```
+</pre> </details>
 
 ## Getting Started
 
