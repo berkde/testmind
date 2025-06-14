@@ -78,7 +78,7 @@ backend/
 
 ### Prerequisites
 
-- Python 3.8 or higher
+- Python 3.11 or higher
 - pip (Python package installer)
 
 ### Installation
