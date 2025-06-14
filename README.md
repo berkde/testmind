@@ -180,7 +180,7 @@ For detailed setup instructions, see the [Backend README](backend/README.md) and
         <sub>Lead Engineer and Architect</sub>
       </td>
       <td align="center">
-        <a href="#">
+        <a href="https://github.com/adamc95">
           <img src="./banners/adam.png" width="100px;" alt="Team Member"/>
           <br />
           <sub><b>Adam Cebulski</b></sub>
