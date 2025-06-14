@@ -119,7 +119,7 @@ testmind/
 
 ### Prerequisites
 
-- Python 3.13.3 or higher
+- Python 3.11
 - Node.js 14.x or higher
 - OpenAI API key
 - HuggingFace API key (optional)
