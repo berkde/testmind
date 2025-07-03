@@ -1,5 +1,6 @@
 import pytest
-# from fastapi.testclient import TestClient
+from fastapi.testclient import TestClient
+from backend.app.api.endpoints import app
 # from backend.app import main
 
 @pytest.fixture(scope="module")
@@ -13,6 +14,6 @@ def test_client():
     # Placeholder for when the app is properly set up
     # from app import main
     # client = TestClient(main)
-    # yield client
 
-    yield None
+    client = TestClient(app)
+    yield client
