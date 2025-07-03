@@ -66,6 +66,54 @@ B --> E[Test Case Generator]
 D --> G[React Frontend (UI)]
 </pre> </details>
 
+## System Connectivity Diagram
+
+
+<details>
+<summary>Click to expand</summary>
+
+This diagram illustrates how user input flows through the TestMIND system, from the React frontend to the FastAPI backend, through the service layer, and back to the user. It also references a potential future AWS deployment architecture.
+
+```mermaid
+graph TD
+    subgraph User
+        A["Web Browser"]
+    end
+    subgraph Frontend
+        B["React App (TypeScript)"]
+    end
+    subgraph Backend
+        C["FastAPI API Server"]
+        D["Pydantic Schemas (Validation)"]
+        E["Service Layer (Test Generator, NLP, AllPairs)"]
+        F["External APIs (OpenAI, HuggingFace)"]
+    end
+    subgraph Cloud["(Future) AWS Deployment"]
+        G["S3 (Static Frontend)"]
+        H["EC2/ECS/Lambda (Backend)"]
+        I["API Gateway"]
+    end
+
+    A -->|"Input requirements"| B
+    B -->|"POST /api/v1/generate"| C
+    C --> D
+    D --> E
+    E --> F
+    F --> E
+    E -->|"Response (test cases, feedback)"| C
+    C -->|"API Response"| B
+    B -->|"Display results"| A
+
+    %% Cloud deployment references
+    B -.-> G
+    C -.-> H
+    H -.-> I
+    G -.-> I
+    I -.-> A
+```
+
+*Solid arrows* show the main data flow. *Dashed arrows* indicate possible AWS deployment targets for frontend and backend components.
+</details>
 
 ## Repository Structure
 
@@ -90,29 +138,30 @@ testmind/
 │   │   │   └── test_generator.py
 │   │   ├── utils/               # Utilities and helpers
 │   │   │   └── all_pairs.py
-│   ├── tests/                   # Backend unit tests
-│   │   └── test_generator.py
-│   ├── requirements.txt
-│   └── README.md
+│   │   ├── tests/                   # Backend unit tests
+│   │   │   └── test_generator.py
+│   │   ├── requirements.txt
+│   │   └── README.md
+│   │
+│   ├── frontend/
+│   │   ├── public/
+│   │   ├── src/
+│   │   │   ├── components/
+│   │   │   ├── pages/
+│   │   │   ├── App.tsx
+│   │   │   └── index.tsx
+│   │   ├── .env
+│   │   ├── package.json
+│   │   └── README.md
+│   │
+│   ├── .github/
+│   │   └── workflows/
+│   │       └── backend.yml          # GitHub CI workflow
+│   │
+│   ├── README.md                    # Project overview
+│   ├── .gitignore
+│   └── LICENSE
 │
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── App.tsx
-│   │   └── index.tsx
-│   ├── .env
-│   ├── package.json
-│   └── README.md
-│
-├── .github/
-│   └── workflows/
-│       └── backend.yml          # GitHub CI workflow
-│
-├── README.md                    # Project overview
-├── .gitignore
-└── LICENSE
 </pre> </details>
 
 ## Getting Started
