@@ -1,12 +1,13 @@
 from fastapi import FastAPI
-from ..models.schemas import RequestSchema, ResponseSchema
+from fastapi import Body
+from ..models.schemas import ResponseSchema
 
 app = FastAPI()
 
 @app.post("/generate-matrix", response_model=ResponseSchema)
-async def generate_matrix(request: RequestSchema):
+async def generate_matrix(user_input: str = Body(...)):
     """
-    Endpoint to receive project context (via transitions/personas) and generate a state transition matrix.
+    Endpoint to receive project context as raw string (via transitions/personas) and generate a state transition matrix.
     Currently returns mock data.
     """
 
