@@ -5,7 +5,7 @@ Demo script to show the complete TestMind matrix generation process
 
 import asyncio
 import logging
-from ..app.services.handler import TestMindHandler
+from app.services.handler import TestMindHandler
 
 logging.basicConfig(
     level=logging.INFO,
