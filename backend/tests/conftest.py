@@ -25,13 +25,29 @@ def mock_openai_chat_completions(monkeypatch):
     """
     class DummyAsyncResponse:
         def __aiter__(self):
-            # Simulate a streaming response with a single dummy message
             async def gen():
                 yield {"choices": [{"message": {"content": "Mocked LLM response"}}]}
             return gen()
 
-    # Patch the async OpenAI chat completion call used by LlamaIndex
     monkeypatch.setattr(
         "openai.resources.chat.completions.Completions.create",
         AsyncMock(return_value=DummyAsyncResponse())
     )
+
+    try:
+        from llama_index.llms.openai import OpenAI
+    except ImportError:
+        from llama_index.llms import OpenAI
+
+    class DummyOpenAI(OpenAI):
+        async def achat(self, *args, **kwargs):
+            class DummyResponse:
+                message = {"content": "Mocked LLM response"}
+            return DummyResponse()
+
+        async def astream_chat(self, *args, **kwargs):
+            class DummyResponse:
+                message = {"content": "Mocked LLM response"}
+            yield DummyResponse()
+
+    monkeypatch.setattr("llama_index.llms.openai.OpenAI", DummyOpenAI)
