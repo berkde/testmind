@@ -17,7 +17,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.9'
+
+      - name: Debug - List files
+        run: |
+          ls -l
+          cd backend
+          ls -l
 
       - name: Cache pip
         uses: actions/cache@v3
