@@ -1,8 +1,7 @@
-from llama_index.core.agent.workflow import FunctionAgent
+from llama_index.core.agent import FunctionCallingAgent as FunctionAgent
 from llama_index.llms.openai import OpenAI
-from ..core.testcase_generator import generate_matrix
+from ..core.testcase_generator import generate_matrix_tool
 from .config import get_settings, get_api_key
-
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -29,11 +28,9 @@ report_agent_llm = OpenAI(model=report_agent_cfg.model,
                           max_tokens=report_agent_cfg.max_tokens,
                           api_key=get_api_key())
 
-question_agent = FunctionAgent(
-    name="Question Agent",
+question_agent = FunctionAgent.from_tools(
     tools=[],
     llm=question_agent_llm,
-    verbose=False,
     system_prompt="""
         You are a conversational AI assistant within a system that transforms natural language feature descriptions
         into structured software test cases. Your primary role is to interact with users,
@@ -53,42 +50,32 @@ question_agent = FunctionAgent(
     """
 )
 
-answer_agent = FunctionAgent(
-    name='Answer Agent',
-    tools=[generate_matrix],
+answer_agent = FunctionAgent.from_tools(
+    tools=[generate_matrix_tool],
     llm=answer_agent_llm,
-    verbose=False,  # Disable verbose mode for cleaner output
     system_prompt="""
         You are a matrix generation agent in a software testing system.
 
         Your task is to use the generate_matrix tool to create a test case matrix from the provided transitions and personas.
 
-        IMPORTANT: Always try to call the generate_matrix tool first. If the tool fails or returns an error, provide a clear error message.
+        IMPORTANT: You MUST call the generate_matrix function with the transitions and personas data.
 
-        The generate_matrix tool expects:
-        - transitions: List of dictionaries with keys: "from_state", "to_state", "essential_for", "optional_for"
-        - personas: List of strings representing user types
+        Example usage:
+        - Input: transitions=[{"from_state": "login", "to_state": "dashboard", "essential_for": "admin", "optional_for": "manager"}], personas=["admin", "manager"]
+        - Call: generate_matrix(transitions, personas)
 
         When you receive input with transitions and personas:
-        1. Call generate_matrix(transitions=transitions, personas=personas)
-        2. If successful, return the tool result in JSON format
-        3. If failed, explain what went wrong and provide debugging information
+        1. Extract the transitions and personas from the input
+        2. Call generate_matrix(transitions, personas) - use the exact function name
+        3. Return the result in JSON format with keys: "matrix" and "test_cases"
 
-        CRITICAL: The tool returns a tuple (matrix, test_ids). You must convert this to JSON format:
-        {
-          "matrix": {matrix_data},
-          "test_cases": {test_ids}
-        }
-
-        Always provide some response - never return empty or silent failures.
-     """
+        DO NOT apologize or explain - just call the function and return the result.
+        """
 )
 
-report_agent = FunctionAgent(
-    name='Report Agent',
+report_agent = FunctionAgent.from_tools(
     tools=[],
     llm=report_agent_llm,
-    verbose=False,
     system_prompt="""
         You are the final validation layer in a software testing assistant system.
 
