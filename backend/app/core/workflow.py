@@ -12,6 +12,7 @@ from llama_index.core.workflow import (
     step
 )
 
+import re
 import json
 
 from ..models.schemas import RequestSchema
@@ -65,7 +66,7 @@ class TestMindWorkflow(Workflow):
         ctx.write_event_to_stream(ProgressEvent(msg="Processing validated input for matrix generation..."))
         logger.info("Processing validated input for matrix generation...")
 
-        result = await self.question_agent.run(user_msg=ev.input, context=ctx)
+        result = await self.question_agent.achat(ev.input)
 
         if hasattr(result, 'response'):
             logger.info(f"Response content: {result.response}")
@@ -163,14 +164,14 @@ class TestMindWorkflow(Workflow):
 
         ctx.write_event_to_stream(ProgressEvent(msg="Generating test matrix from validated input..."))
 
-        response = await self.answer_agent.run(user_msg=f"""
+        response = await self.answer_agent.achat(f"""
         Please generate a structured test matrix from the following input.
 
         Transitions: {request.transitions}
 
         Personas: {request.personas}
 
-        """, context=ctx)
+        """)
 
         logger.info(f"Answer agent response type: {type(response)}")
         logger.info(f"Answer agent response: {response}")
@@ -183,7 +184,14 @@ class TestMindWorkflow(Workflow):
         logger.info(f"Response string: {response_str}")
 
         try:
-            if response_str.strip().startswith('{'):
+            json_match = re.search(r'\{.*}', response_str, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(0)
+                response_data = json.loads(json_str)
+                matrix_data = response_data.get('matrix', {})
+                test_cases = response_data.get('test_cases', [])
+                explanation = f"Matrix generated successfully with {len(test_cases)} test cases."
+            elif response_str.strip().startswith('{'):
                 response_data = json.loads(response_str)
                 matrix_data = response_data.get('matrix', {})
                 test_cases = response_data.get('test_cases', [])
@@ -191,7 +199,8 @@ class TestMindWorkflow(Workflow):
             else:
                 matrix_data = {}
                 explanation = f"Matrix generated. Response type: {type(response)}"
-        except (json.JSONDecodeError, AttributeError):
+        except (json.JSONDecodeError, AttributeError) as e:
+            logger.error(f"JSON parsing error: {e}")
             matrix_data = {}
             explanation = f"Matrix generated. Response type: {type(response)}"
 
@@ -215,11 +224,11 @@ class TestMindWorkflow(Workflow):
         logger.info(f"Validating test matrix with {len(ev.matrix_data)} transitions.")
         ctx.write_event_to_stream(ProgressEvent(msg="Validating generated matrix and explanation..."))
 
-        result = await self.report_agent.run(user_msg=f"""
+        result = await self.report_agent.achat(f"""
             Matrix Data: {ev.matrix_data}
             Explanation: {ev.explanation}
             Please Provide Recommendations and Guidelines to improve the results if necessary.
-        """, context=ctx)
+        """)
 
         logger.info(f"Validation result received: {result}")
 
