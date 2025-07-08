@@ -37,9 +37,11 @@ jobs:
         run: |
           cd backend
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.txt || exit 1
 
       - name: Run backend tests
         run: |
-          cd backend
-          pytest --maxfail=2 --disable-warnings -q
+          pwd
+          ls backend
+          ls backend/app
+          PYTHONPATH=./backend pytest backend/tests --maxfail=2 --disable-warnings -q
