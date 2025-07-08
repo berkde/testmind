@@ -13,7 +13,7 @@ httpx>=0.27.0,<1.0.0             # 1.0.0+ is still in beta, 0.27+ is stable
 # NLP and AI
 transformers==4.39.3             # Stable, matches torch 2.x
 llama-index==0.9.48              # Matches transformers and openai 1.x
-tokenizers>=0.19.1,<0.20         # 0.19+ for transformers 4.39+
+tokenizers>=0.14,<0.19           # transformers 4.39.3 requires <0.19
 torch>=2.1.0,<2.8.0              # 2.7.0 is latest, 2.1+ is stable for most AI libs
 openai>=1.12.0,<2.0.0            # 1.12+ for pydantic v2 support
 python-dotenv>=1.0.1,<2.0.0      # 1.0+ is latest, supports Python 3.11+
