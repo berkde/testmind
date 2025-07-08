@@ -33,6 +33,9 @@ async def test_handler_basic_functionality():
 
     result = await handler.run(test_input)
 
+    if result.get('status') == 'error' and 'insufficient_quota' in result.get('message', ''):
+        pytest.skip("Skipping test due to OpenAI quota limits.")
+
     assert result is not None
     assert isinstance(result, dict)
 
