@@ -12,8 +12,8 @@ def generate_matrix(transitions: List[Dict], personas: List[str]) -> Tuple[Dict,
     test_counter = 1
 
     for t in transitions:
-        from_state = t["from"]
-        to_state = t["to"]
+        from_state = t["from_state"]
+        to_state = t["to_state"]
         essential = t["essential_for"]
         optional = t.get("optional_for", [])
         transition_key = f"{from_state}→{to_state}"
