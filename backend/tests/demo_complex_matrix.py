@@ -5,6 +5,12 @@ Demo script to show complex TestMind matrix generation with essential, optional,
 
 import asyncio
 import logging
+import sys
+import os
+
+# Add the backend directory to the Python path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 from app.services.handler import TestMindHandler
 
 logging.basicConfig(
