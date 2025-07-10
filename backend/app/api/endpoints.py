@@ -1,32 +1,36 @@
-from fastapi import FastAPI
-from fastapi import Body
-from ..models.schemas import ResponseSchema
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse
+from ..models.schemas import UserInputSchema
+from ..services.handler import TestMindHandler
+import os
 
-app = FastAPI()
+router = APIRouter()
 
-@app.post("/generate-matrix", response_model=ResponseSchema)
-async def generate_matrix(user_input: str = Body(...)):
-    """
-    Endpoint to receive project context as raw string (via transitions/personas) and generate a state transition matrix.
-    Currently returns mock data.
-    """
+@router.post("/generate-matrix")
+async def generate_matrix(user_input: UserInputSchema):
+    try:
+        handler = TestMindHandler(timeout=300)
+        result = await handler.run(user_input.text)
 
-    #  Mock matrix for Post Drafted -> Post Published Transition from "Post New Ideas" App
-    mock_matrix = (
-        {
-            "PostDraftedToPostPublished": {
-                "RegisteredUser": {"status": "Essential", "id": "G1"},
-                "Visitor": {"status": "Prohibited", "id": "R1"},
-            },
-        },
-        [
-            {"id": "G1", "transition": "PostDraftedToPostPublished", "by": "system"},
-            {"id": "R1", "transition": "PostDraftedToPostPublished", "by": "system"},
-        ],
-    )
+        status = result.get('status', 'success' if result.get('matrix_data') else 'unknown')
+        summary = result.get('summary', 'No summary available')
+        recommendations = result.get('recommendations', None)
+        matrix_data = result.get('matrix_data', {})
 
-    return ResponseSchema(
-        status="success",
-        llm_text_response="Mock matrix generated successfully for Post Drafted to Post Published transition.",
-        generated_matrix=mock_matrix
-    )
+        response = {
+            "status": status,
+            "summary": summary,
+            "recommendations": recommendations,
+            "matrix_data": matrix_data,
+        }
+        if status == 'error':
+            response["error_message"] = result.get('message', 'Unknown error occurred')
+        return JSONResponse(content=response)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JSONResponse(content={
+            "status": "error",
+            "error_message": str(e),
+            "traceback": traceback.format_exc()
+        }, status_code=500)
