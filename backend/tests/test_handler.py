@@ -63,10 +63,9 @@ async def test_handler_basic_functionality():
 
 @pytest.mark.asyncio
 async def test_handler_error_handling():
-    """Test the TestMindHandler with edge cases and error conditions."""
+    """Test the TestMindHandler with invalid input."""
 
-    # Test with very minimal input that should still work but produce minimal results
-    test_input = "test"
+    test_input = "This is not a valid test input"
 
     handler = TestMindHandler(timeout=300)
 
