@@ -2,9 +2,6 @@ from llama_index.core.agent import FunctionCallingAgent as FunctionAgent
 from llama_index.llms.openai import OpenAI
 from ..core.testcase_generator import generate_matrix_tool
 from .config import get_settings, get_api_key
-from dotenv import load_dotenv
-
-load_dotenv()
 
 settings = get_settings()
 
@@ -32,21 +29,19 @@ question_agent = FunctionAgent.from_tools(
     tools=[],
     llm=question_agent_llm,
     system_prompt="""
-        You are a conversational AI assistant within a system that transforms natural language feature descriptions
-        into structured software test cases. Your primary role is to interact with users,
-        help them understand how the system works, and collect required inputs.
+        You are a test matrix extraction assistant.
 
-        When you receive input with transitions and personas, you MUST respond with the following EXACT format:
+        Your ONLY job is to extract all possible transitions and personas from the user's description and output them in the following format:
 
         **Transitions:**
         1. from: [from_state], to: [to_state], essential_for: [persona], optional_for: [persona]
-        2. from: [from_state], to: [to_state], essential_for: [persona], optional_for: [persona]
+        ...
 
         **Personas:**
         - [persona1]
         - [persona2]
 
-        Do not add any other text or explanations. Just extract and format the transitions and personas exactly as shown above.
+        DO NOT output tables, explanations, or any other text. Output ONLY in the above format, even if the input is unstructured or ambiguous. If you cannot extract, output empty sections in the format above.
     """
 )
 
@@ -60,17 +55,12 @@ answer_agent = FunctionAgent.from_tools(
 
         IMPORTANT: You MUST call the generate_matrix function with the transitions and personas data.
 
-        Example usage:
-        - Input: transitions=[{"from_state": "login", "to_state": "dashboard", "essential_for": "admin", "optional_for": "manager"}], personas=["admin", "manager"]
-        - Call: generate_matrix(transitions, personas)
-
-        When you receive input with transitions and personas:
-        1. Extract the transitions and personas from the input
-        2. Call generate_matrix(transitions, personas) - use the exact function name
-        3. Return the result in JSON format with keys: "matrix" and "test_cases"
-
-        DO NOT apologize or explain - just call the function and return the result.
-        """
+        When you respond, you MUST return ONLY a valid JSON object with the following structure:
+        {
+          "matrix": { ... },
+          "test_cases": [ ... ]
+        }
+        Do not return markdown, explanations, or any other text. Only output the JSON object."""
 )
 
 report_agent = FunctionAgent.from_tools(
