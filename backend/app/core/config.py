@@ -3,7 +3,10 @@ from functools import lru_cache
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
 from typing import Literal
+from dotenv import load_dotenv
 import os
+
+load_dotenv()
 
 
 class AgentModelConfig(BaseModel):
@@ -30,7 +33,7 @@ class Settings(BaseSettings):
     question_agent: AgentModelConfig = Field(
         default=AgentModelConfig(
             model="gpt-3.5-turbo",
-            temperature=0.7,
+            temperature=0.0,
             max_tokens=1000
         ),
         description="Configuration for the question agent"
@@ -87,4 +90,4 @@ def get_api_key() -> str | None:
         str | None: The OpenAI API key if found in environment variables,
                     None if the API key is not set.
     """
-    return os.environ.get("OPENAI_API_KEY")
+    return os.getenv("OPENAI_API_KEY")
