@@ -5,8 +5,8 @@ from pydantic import BaseModel, StringConstraints
 class Transition(BaseModel):
     from_state: Annotated[str, StringConstraints(min_length=3, max_length=255)]
     to_state: Annotated[str, StringConstraints(min_length=3, max_length=255)]
-    essential_for: Annotated[str, StringConstraints(min_length=3, max_length=255)]
-    optional_for: Annotated[str, StringConstraints(min_length=3, max_length=255)]
+    essential_for: Annotated[str, StringConstraints(min_length=2, max_length=255)]
+    optional_for: Annotated[str, StringConstraints(min_length=2, max_length=255)]
 
 
 class RequestSchema(BaseModel):
@@ -23,7 +23,7 @@ class RequestSchema(BaseModel):
         StringConstraints(min_length=1)
     ]
     personas: Annotated[
-        list[Annotated[str, StringConstraints(min_length=3, max_length=255)]],
+        list[Annotated[str, StringConstraints(min_length=2, max_length=255)]],
         StringConstraints(min_length=1)
     ]
 
@@ -88,3 +88,7 @@ class LLMUnsatisfiedError(BaseModel):
         List[Annotated[str, StringConstraints(min_length=1)]],
         StringConstraints(min_length=0)
     ] = []
+
+
+class UserInputSchema(BaseModel):
+    text: Annotated[str, StringConstraints(min_length=1)]
