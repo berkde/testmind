@@ -25,6 +25,7 @@ pandas>=2.2.0,<3.0.0             # 2.2+ for Python 3.11+
 
 # CORS and Starlette
 starlette>=0.37.2,<0.39.0        # Verified compatible with FastAPI >=0.111
+uvicorn>=0.29.0,<0.30.0          # For running FastAPI app
 
 # New additions
 llama-index-workflows>=1.0.0     # Required for core.workflow module
