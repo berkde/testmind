@@ -3,13 +3,13 @@
 <div align="center">
   <img src="../banners/banner.png" alt="TestMIND Logo" width="200"/>
 
-  [![Backend CI](https://github.com/berkde/testmind/actions/workflows/backend.yml/badge.svg)](https://github.com/berkde/testmind/actions/workflows/backend.yml)
-  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-  [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
-  [![FastAPI](https://img.shields.io/badge/FastAPI-0.68.0+-green.svg)](https://fastapi.tiangolo.com/)
-  [![React](https://img.shields.io/badge/React-17.0.2+-blue.svg)](https://reactjs.org/)
-  ![Hugging Face](https://img.shields.io/badge/-Hugging%20Face-FDEE21?logo=HuggingFace&logoColor=black)
-  ![OpenAI](https://img.shields.io/badge/-OpenAI-412991?logo=OpenAI&logoColor=white&style=flat-square)
+[![Backend CI](https://github.com/berkde/testmind/actions/workflows/backend.yml/badge.svg)](https://github.com/berkde/testmind/actions/workflows/backend.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.68.0+-green.svg)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-17.0.2+-blue.svg)](https://reactjs.org/)
+![Hugging Face](https://img.shields.io/badge/-Hugging%20Face-FDEE21?logo=HuggingFace&logoColor=black)
+![OpenAI](https://img.shields.io/badge/-OpenAI-412991?logo=OpenAI&logoColor=white&style=flat-square)
 
 </div>
 
@@ -34,6 +34,7 @@ This is the React-based frontend application for TestMIND, an AI-assisted tool d
 ## Overview
 
 The TestMIND frontend is a React-based web application that provides a user-friendly interface for:
+
 - Inputting natural language requirements
 - Viewing and managing generated test cases
 - Configuring test generation parameters
@@ -44,7 +45,6 @@ The TestMIND frontend is a React-based web application that provides a user-frie
 ## Technology Stack
 
 - **React**: Frontend library for building user interfaces
-- **TypeScript**: Type-safe JavaScript for React development
 - **React Router**: For navigation
 - **Axios**: For API requests
 - **CSS Modules/Styled Components**: For styling
@@ -56,18 +56,17 @@ The TestMIND frontend is a React-based web application that provides a user-frie
 ```
 frontend/
 ├── public/                # Static files
-│   ├── index.html         # HTML template
-│   └── favicon.ico        # Favicon
 ├── src/                   # Source code
 │   ├── components/        # Reusable UI components
 │   ├── pages/             # Page components
 │   ├── services/          # API services
 │   ├── utils/             # Utility functions
-│   ├── types/             # TypeScript type definitions
-│   ├── App.tsx            # Main application component
-│   └── index.tsx          # Application entry point
+│   ├── App.jsx            # Main application component
+│   └── main.jsx           # Application entry point
 ├── package.json           # Project dependencies and scripts
-├── tsconfig.json          # TypeScript configuration
+├── vite.config.js         # Vite configuration
+├── eslint.config.js       # ESLint configuration
+├── index.html             # HTML template
 └── README.md              # This file
 ```
 
@@ -81,6 +80,7 @@ frontend/
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/berkde/testmind.git
    cd testmind/frontend
@@ -107,12 +107,12 @@ frontend/
 Start the React development server:
 
 ```bash
-npm start
+npm run dev
 # or
-yarn start
+yarn dev
 ```
 
-This will start the React application in development mode. The application will be available at http://localhost:3000 in your web browser.
+This will start the React application in development mode. The application will be available at http://localhost:5173 in your web browser.
 
 ### Building for Production
 
@@ -145,6 +145,7 @@ The React application is configured to be deployed using GitHub Actions. The wor
 For manual deployment of the React application:
 
 1. Build the React application:
+
    ```bash
    npm run build
    # or
