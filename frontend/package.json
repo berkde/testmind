@@ -1,8 +1,9 @@
 {
-  "name": "frontend",
+  "name": "testmind-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
+  "description": "Frontend application for TestMIND - an AI-assisted tool for generating structured software test cases.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
