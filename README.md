@@ -117,52 +117,87 @@ graph TD
 
 ## Repository Structure
 
-
 <details>
 <summary>Click to expand</summary>
 
 <pre>
 testmind/
 ├── backend/
+│   ├── __init__.py
 │   ├── app/
 │   │   ├── __init__.py
-│   │   ├── main.py              # FastAPI app entry point
-│   │   ├── api/                 # Route handlers
+│   │   ├── api/
 │   │   │   ├── __init__.py
 │   │   │   └── endpoints.py
-│   │   ├── core/                # Configs, OpenAI/HF setup
-│   │   │   └── config.py
-│   │   ├── models/              # Pydantic models / data schemas
+│   │   ├── core/
+│   │   │   ├── __init__.py
+│   │   │   ├── agent.py
+│   │   │   ├── config.py
+│   │   │   ├── testcase_generator.py
+│   │   │   └── workflow.py
+│   │   ├── main.py
+│   │   ├── models/
+│   │   │   ├── __init__.py
+│   │   │   ├── error.py
+│   │   │   ├── event.py
 │   │   │   └── schemas.py
-│   │   ├── services/            # Business logic, HuggingFace + OpenAI wrappers
-│   │   │   └── test_generator.py
-│   │   ├── utils/               # Utilities and helpers
+│   │   ├── services/
+│   │   │   ├── __init__.py
+│   │   │   └── handler.py
+│   │   ├── utils/
+│   │   │   ├── __init__.py
 │   │   │   └── all_pairs.py
-│   │   ├── tests/                   # Backend unit tests
-│   │   │   └── test_generator.py
-│   │   ├── requirements.txt
-│   │   └── README.md
-│   │
-│   ├── frontend/
-│   │   ├── public/
-│   │   ├── src/
-│   │   │   ├── components/
-│   │   │   ├── pages/
-│   │   │   ├── App.tsx
-│   │   │   └── index.tsx
-│   │   ├── .env
-│   │   ├── package.json
-│   │   └── README.md
-│   │
-│   ├── .github/
-│   │   └── workflows/
-│   │       └── backend.yml          # GitHub CI workflow
-│   │
-│   ├── README.md                    # Project overview
-│   ├── .gitignore
-│   └── LICENSE
-│
-</pre> </details>
+│   ├── README.md
+│   ├── requirements.txt
+│   └── tests/
+│       ├── __init__.py
+│       ├── conftest.py
+│       ├── demo_complex_matrix.py
+│       ├── demo_matrix.py
+│       ├── pytest.ini
+│       ├── README.md
+│       ├── test_generator.py
+│       ├── test_handler.py
+│       └── test_simple.py
+├── banners/
+│   ├── adam.png
+│   ├── banner.png
+│   ├── berk.png
+│   ├── jiawei.png
+│   └── lori.png
+├── frontend/
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package.json
+│   ├── public/
+│   │   └── banner.png
+│   ├── README.md
+│   ├── src/
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── assets/
+│   │   │   ├── adam.png
+│   │   │   ├── berk.png
+│   │   │   ├── jiawei.png
+│   │   │   └── lori.png
+│   │   ├── components/
+│   │   │   ├── Card.css
+│   │   │   ├── Card.jsx
+│   │   │   ├── Header.css
+│   │   │   └── Header.jsx
+│   │   ├── index.css
+│   │   ├── main.jsx
+│   │   └── pages/
+│   │       ├── Contact.css
+│   │       ├── Contact.jsx
+│   │       ├── Home.css
+│   │       └── Home.jsx
+│   ├── vite.config.js
+├── LICENSE
+├── README.md
+
+</pre>
+</details>
 
 ## Getting Started
 
