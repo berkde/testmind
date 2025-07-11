@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v3
@@ -18,12 +18,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
-      - name: Debug - List files
-        run: |
-          ls -l
-          cd backend
-          ls -l
 
       - name: Cache pip
         uses: actions/cache@v3
@@ -37,11 +31,57 @@ jobs:
         run: |
           cd backend
           python -m pip install --upgrade pip
-          pip install -r requirements.txt || exit 1
+          pip install -r requirements.txt
+
+      - name: Check required secrets
+        run: |
+          if [ -z "${{ secrets.OPENAI_API_KEY }}" ]; then
+            echo "Missing OPENAI_API_KEY secret"
+            exit 1
+          fi
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Restore pip cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create .env file
+        run: |
+          cat <<EOF > backend/.env
+          OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+          DEBUG=True
+          API_PREFIX=/api/v1
+          HOST=0.0.0.0
+          PORT=8000
+          ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+          OPENAI_MODEL=gpt-4
+          MAX_TOKENS=2000
+          TEMPERATURE=0.7
+          EOF
 
       - name: Run backend tests
         run: |
-          pwd
-          ls backend
-          ls backend/app
-          PYTHONPATH=./backend pytest backend/tests --maxfail=2 --disable-warnings -q
+          export PYTHONPATH=./backend
+          pytest backend/tests --maxfail=2 --disable-warnings -q
