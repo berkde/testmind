@@ -141,6 +141,7 @@ class TestMindWorkflow(Workflow):
         request = RequestSchema(transitions=transitions,
                                 personas=personas)
 
+        await ctx.store.set('user_input', ev.input)
         ctx.write_event_to_stream(ProgressEvent(msg="Request input processed. Passing to matrix generator..."))
         logger.info("Request input processed. Passing to matrix generator...")
 
