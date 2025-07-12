@@ -30,6 +30,15 @@ class Settings(BaseSettings):
     Includes structured model configuration for all agents.
     """
 
+    conversation_agent: AgentModelConfig = Field(
+        default=AgentModelConfig(
+            model="gpt-4",
+            temperature=0.8,
+            max_tokens=1500
+        ),
+        description="Configuration for the conversation agent"
+    )
+
     question_agent: AgentModelConfig = Field(
         default=AgentModelConfig(
             model="gpt-3.5-turbo",
