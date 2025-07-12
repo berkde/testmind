@@ -3,7 +3,9 @@ from ..models.event import (
     MatrixEvent,
     MatrixAnswerEvent,
     ProgressEvent,
-    ErrorEvent)
+    ErrorEvent,
+    ConversationEvent,
+    ConversationResponseEvent)
 from llama_index.core.workflow import (
     Context,
     StartEvent,
@@ -27,6 +29,7 @@ class TestMindWorkflow(Workflow):
     A workflow to process user input and generate a test matrix using multiple agents.
 
     Attributes:
+        conversation_agent: The agent responsible for conversational interactions and intent detection.
         question_agent: The agent responsible for interpreting user input and extracting context.
         answer_agent: The agent responsible for generating the test matrix.
         report_agent: The agent responsible for validating and summarizing the result.
@@ -34,6 +37,7 @@ class TestMindWorkflow(Workflow):
 
     def __init__(self, timeout=300):
         super().__init__(timeout=timeout)
+        self.conversation_agent = None
         self.report_agent = None
         self.answer_agent = None
         self.question_agent = None
@@ -42,13 +46,106 @@ class TestMindWorkflow(Workflow):
         return f'<TestMindWorkflow timeout={self._timeout}>'
 
     @step
-    async def setup(self, ctx: Context, ev: StartEvent) -> GenerateEvent:
+    async def setup(self, ctx: Context, ev: StartEvent) -> ConversationEvent:
+        self.conversation_agent = ev.conversation_agent
         self.question_agent = ev.question_agent
         self.answer_agent = ev.answer_agent
         self.report_agent = ev.report_agent
 
         ctx.write_event_to_stream(ProgressEvent(msg="Initializing TestMind system..."))
-        return GenerateEvent(input=ev.input)
+        return ConversationEvent(input=ev.input)
+
+    @step
+    async def process_conversation(self, ctx: Context, ev: ConversationEvent) -> ConversationResponseEvent | GenerateEvent | ErrorEvent:
+        """
+        Processes user input through the conversation agent to determine if matrix generation is needed.
+
+        Args:
+            ctx (Context): The execution context for this workflow step.
+            ev (ConversationEvent): The event containing raw user input.
+
+        Returns:
+            ConversationResponseEvent if conversation should continue,
+            GenerateEvent if matrix generation should be triggered,
+            ErrorEvent if there's an error.
+        """
+        logger.info(f'Processing conversation input: {ev.input}')
+        ctx.write_event_to_stream(ProgressEvent(msg="Processing user input through conversation agent..."))
+
+        # Validate that conversation agent is available
+        if not self.conversation_agent:
+            logger.error("Conversation agent not initialized")
+            return ErrorEvent(message="System error: Conversation agent not available")
+
+        # Get conversation context from store
+        conversation_context = await ctx.store.get('conversation_context', {})
+
+        # Prepare context for conversation agent
+        context_str = ""
+        if conversation_context.get('previous_matrices'):
+            context_str = f"\nPrevious matrices: {conversation_context['previous_matrices']}"
+
+        result = await self.conversation_agent.achat(f"""
+        User input: {ev.input}
+        {context_str}
+        
+        Determine if this input should trigger matrix generation or continue conversation.
+        Look for keywords like 'matrix', 'generate matrix', 'matrix generation', 'generate table', 'test matrix'.
+        
+        If matrix generation is needed, respond with: MATRIX_GENERATION: [processed input]
+        If conversation should continue, respond with: CONVERSATION: [your response]
+        """)
+
+        response_text = str(result)
+        logger.info(f"Conversation agent response: {response_text}")
+
+        if "MATRIX_GENERATION:" in response_text:
+            # Extract the processed input for matrix generation
+            matrix_input = response_text.split("MATRIX_GENERATION:")[1].strip()
+            ctx.write_event_to_stream(ProgressEvent(msg="Matrix generation requested. Processing input..."))
+            return GenerateEvent(input=matrix_input)
+        elif "CONVERSATION:" in response_text:
+            # Extract the conversation response
+            conversation_response = response_text.split("CONVERSATION:")[1].strip()
+            return ConversationResponseEvent(
+                response=conversation_response,
+                should_generate_matrix=False,
+                matrix_input=None,
+                conversation_context=conversation_context
+            )
+        else:
+            # Default to conversation if unclear
+            return ConversationResponseEvent(
+                response=response_text,
+                should_generate_matrix=False,
+                matrix_input=None,
+                conversation_context=conversation_context
+            )
+
+    @step
+    async def handle_conversation_response(self, ctx: Context, ev: ConversationResponseEvent) -> StopEvent:
+        """
+        Handles conversation responses when matrix generation is not needed.
+
+        Args:
+            ctx (Context): The execution context for this workflow step.
+            ev (ConversationResponseEvent): The conversation response event.
+
+        Returns:
+            StopEvent: A terminal event containing the conversation response.
+        """
+        logger.info(f"Handling conversation response: {ev.response}")
+        ctx.write_event_to_stream(ProgressEvent(msg="Processing conversation response..."))
+
+        # Store the conversation context
+        await ctx.store.set('conversation_context', ev.conversation_context)
+
+        return StopEvent(result={
+            'status': 'conversation',
+            'response': ev.response,
+            'conversation_context': ev.conversation_context
+        })
+
 
     @step
     async def collect_user_input(self, ctx: Context, ev: GenerateEvent) -> MatrixEvent | ErrorEvent:
@@ -65,6 +162,11 @@ class TestMindWorkflow(Workflow):
         logger.info(f'Collecting user input: {ev.input}')
         ctx.write_event_to_stream(ProgressEvent(msg="Processing validated input for matrix generation..."))
         logger.info("Processing validated input for matrix generation...")
+
+        # Validate that question agent is available
+        if not self.question_agent:
+            logger.error("Question agent not initialized")
+            return ErrorEvent(message="System error: Question agent not available")
 
         result = await self.question_agent.achat(ev.input)
 
@@ -84,7 +186,7 @@ class TestMindWorkflow(Workflow):
                 personas_section = response_text.split("**Personas:**")[1].split("\n")
             else:
                 personas_section = response_text.split("Personas:")[1].split("\n")
-                
+
             for line in personas_section:
                 line = line.strip()
                 if line.startswith("- ") or line.startswith("* "):
@@ -104,7 +206,7 @@ class TestMindWorkflow(Workflow):
                 transitions_section = response_text.split("**Transitions:**")[1].split("**Personas:**")[0]
             else:
                 transitions_section = response_text.split("Transitions:")[1].split("Personas:")[0]
-                
+
             for line in transitions_section.split("\n"):
                 line = line.strip()
                 if ("from:" in line and "to:" in line and "essential_for:" in line) or ("From:" in line and "To:" in line and "Essential for:" in line):
@@ -124,7 +226,7 @@ class TestMindWorkflow(Workflow):
                         elif "optional_for:" in part or "Optional for:" in part:
                             key = "optional_for:" if "optional_for:" in part else "Optional for:"
                             transition["optional_for"] = part.split(key)[1].strip()
-                    
+
                     if len(transition) >= 4:
                         transitions.append(transition)
 
@@ -244,6 +346,16 @@ class TestMindWorkflow(Workflow):
         await ctx.store.set('final_explanation', final_explanation)
         await ctx.store.set('matrix_data', ev.matrix_data)
 
+        conversation_context = await ctx.store.get('conversation_context', {})
+        if 'previous_matrices' not in conversation_context:
+            conversation_context['previous_matrices'] = []
+        conversation_context['previous_matrices'].append({
+            'matrix_data': ev.matrix_data,
+            'summary': final_explanation,
+            'timestamp': 'now'  # In a real implementation, you'd use actual timestamp
+        })
+        await ctx.store.set('conversation_context', conversation_context)
+        
         return StopEvent(result={
             'summary': final_explanation,
             'recommendations': optional_recommendations,
