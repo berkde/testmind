@@ -4,26 +4,54 @@ from ..core.testcase_generator import generate_matrix_tool
 from .config import get_settings, get_api_key
 
 settings = get_settings()
+api_key = get_api_key()
 
-
+conversation_agent_cfg = settings.conversation_agent
 question_agent_cfg = settings.question_agent
 answer_agent_cfg = settings.answer_agent
 report_agent_cfg = settings.report_agent
 
+conversation_agent_llm = OpenAI(model=conversation_agent_cfg.model,
+                                temperature=conversation_agent_cfg.temperature,
+                                max_tokens=conversation_agent_cfg.max_tokens,
+                                api_key=api_key)
+
 question_agent_llm = OpenAI(model=question_agent_cfg.model,
                             temperature=question_agent_cfg.temperature,
                             max_tokens=question_agent_cfg.max_tokens,
-                            api_key=get_api_key())
+                            api_key=api_key)
 
 answer_agent_llm = OpenAI(model=answer_agent_cfg.model,
                           temperature=answer_agent_cfg.temperature,
                           max_tokens=answer_agent_cfg.max_tokens,
-                          api_key=get_api_key())
+                          api_key=api_key)
 
 report_agent_llm = OpenAI(model=report_agent_cfg.model,
                           temperature=report_agent_cfg.temperature,
                           max_tokens=report_agent_cfg.max_tokens,
-                          api_key=get_api_key())
+                          api_key=api_key)
+
+
+conversation_agent = FunctionAgent.from_tools(
+    tools = [],
+    llm=conversation_agent_llm,
+    system_prompt="""
+        You are a conversational assistant for TestMind, a test case generation system.
+        
+        Your primary responsibilities:
+        1. Engage in natural conversation with users about test case generation, software testing, and related topics
+        2. Detect when users want to generate test matrices by looking for keywords like:
+           - 'matrix', 'generate matrix', 'matrix generation', 'generate table', 'test matrix'
+           - 'create test cases', 'test scenarios', 'testing workflow'
+        3. Provide helpful information about test case generation methodologies
+        4. Remember previous conversations and generated matrices to provide context-aware responses
+        
+        When you detect matrix generation requests, respond with: MATRIX_GENERATION: [processed input]
+        When continuing conversation, respond with: CONVERSATION: [your helpful response]
+        
+        Be friendly, knowledgeable, and helpful in guiding users through the test case generation process.
+    """
+)
 
 question_agent = FunctionAgent.from_tools(
     tools=[],
@@ -77,3 +105,5 @@ report_agent = FunctionAgent.from_tools(
         Be precise and ensure the output is accurate, as this will be used for actionable test planning.   
       """
 )
+
+__all__ = ['conversation_agent', 'question_agent', 'answer_agent', 'report_agent']
