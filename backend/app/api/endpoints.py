@@ -6,25 +6,40 @@ import os
 
 router = APIRouter()
 
-@router.post("/generate-matrix")
-async def generate_matrix(user_input: UserInputSchema):
+@router.post("/mind")
+async def conversation(user_input: UserInputSchema):
+    """
+    Single endpoint for all TestMind interactions.
+    
+    This endpoint processes user input through the conversation agent to determine
+    whether to continue the conversation or trigger matrix generation. It serves
+    as the unified interface for all user interactions with the TestMind system.
+    """
     try:
         handler = TestMindHandler(timeout=300)
         result = await handler.run(user_input.text)
 
-        status = result.get('status', 'success' if result.get('matrix_data') else 'unknown')
-        summary = result.get('summary', 'No summary available')
-        recommendations = result.get('recommendations', None)
-        matrix_data = result.get('matrix_data', {})
-
-        response = {
-            "status": status,
-            "summary": summary,
-            "recommendations": recommendations,
-            "matrix_data": matrix_data,
-        }
-        if status == 'error':
-            response["error_message"] = result.get('message', 'Unknown error occurred')
+        status = result.get('status', 'unknown')
+        
+        if status == 'conversation':
+            response = {
+                "status": "conversation",
+                "response": result.get('response', 'No response available'),
+                "conversation_context": result.get('conversation_context', {})
+            }
+        elif status == 'success':
+            response = {
+                "status": "success",
+                "summary": result.get('summary', 'No summary available'),
+                "recommendations": result.get('recommendations', None),
+                "matrix_data": result.get('matrix_data', {})
+            }
+        else:
+            response = {
+                "status": status,
+                "error_message": result.get('message', 'Unknown error occurred')
+            }
+            
         return JSONResponse(content=response)
     except Exception as e:
         import traceback
