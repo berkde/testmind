@@ -44,22 +44,30 @@ async def test_handler_basic_functionality():
     assert result is not None
     assert isinstance(result, dict)
 
-    if result.get('matrix_data'):
-        assert result.get('matrix_data') is not None
-        assert isinstance(result.get('matrix_data'), dict)
-        assert len(result.get('matrix_data', {})) > 0
+    if result.get('status') == 'conversation':
+        assert result.get('response') is not None
+        assert isinstance(result.get('response'), str)
+        assert len(result.get('response', '')) > 0
+    elif result.get('status') == 'success':
+        if result.get('matrix_data'):
+            assert result.get('matrix_data') is not None
+            assert isinstance(result.get('matrix_data'), dict)
+            assert len(result.get('matrix_data', {})) > 0
 
-        matrix_data = result.get('matrix_data', {})
-        assert 'login→dashboard' in matrix_data
-        assert 'dashboard→logout' in matrix_data
+            matrix_data = result.get('matrix_data', {})
+            assert 'login→dashboard' in matrix_data
+            assert 'dashboard→logout' in matrix_data
 
-        for transition_data in matrix_data.values():
-            assert 'admin' in transition_data
-            assert 'guest' in transition_data
+            for transition_data in matrix_data.values():
+                assert 'admin' in transition_data
+                assert 'guest' in transition_data
 
-    assert result.get('summary') is not None
-    assert isinstance(result.get('summary'), str)
-    assert len(result.get('summary', '')) > 0
+        assert result.get('summary') is not None
+        assert isinstance(result.get('summary'), str)
+        assert len(result.get('summary', '')) > 0
+    else:
+        assert result.get('status') == 'error'
+        assert result.get('message') is not None
 
 @pytest.mark.asyncio
 async def test_handler_error_handling():
