@@ -4,7 +4,6 @@ from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
 from typing import Literal
 from dotenv import load_dotenv
-from dataclasses import dataclass
 import os
 
 load_dotenv()
@@ -23,7 +22,6 @@ class AgentModelConfig(BaseModel):
     temperature: float = Field(..., ge=0.0, le=1.0)
     max_tokens: int = Field(..., gt=0)
 
-@dataclass
 class Settings(BaseSettings):
     """
     Global settings for the TestMind backend system.
