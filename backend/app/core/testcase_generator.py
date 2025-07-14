@@ -1,6 +1,9 @@
 from typing import List, Dict, Tuple
 from enum import Enum
 from llama_index.core.tools import FunctionTool
+from logging import getLogger
+
+logger = getLogger(__name__)
 
 class Status(str, Enum):
     ESSENTIAL = "Green"
@@ -22,11 +25,14 @@ def generate_matrix(transitions: List[Dict], personas: List[str]) -> Tuple[Dict,
     test_ids = []
     test_counter = 1
 
+    logger.info(f"Generating test matrix for {len(transitions)} transitions")
+    logger.info(f"Generating test matrix for {len(personas)} personas")
+
     for t in transitions:
         from_state = t["from_state"]
         to_state = t["to_state"]
         essential = t["essential_for"]
-        optional = t.get("optional_for", [])
+        optional = t.get("optional_for", "")
         transition_key = f"{from_state}→{to_state}"
 
         matrix[transition_key] = {}
@@ -37,14 +43,16 @@ def generate_matrix(transitions: List[Dict], personas: List[str]) -> Tuple[Dict,
                 matrix[transition_key][persona] = {"status": Status.ESSENTIAL, "id": gid}
                 test_ids.append({"id": gid, "transition": transition_key, "by": persona})
                 test_counter += 1
-            elif persona in optional:
+            elif persona == optional:
                 matrix[transition_key][persona] = {"status": Status.OPTIONAL}
             else:
                 matrix[transition_key][persona] = {"status": Status.REDUNDANT}
 
+    logger.info(f"Generated test matrix size {len(matrix)}")
+    logger.info(f"test ids: {test_ids}")
+
     return matrix, test_ids
 
-# Create the tool with proper metadata
 generate_matrix_tool = FunctionTool.from_defaults(
     fn=generate_matrix,
     name="generate_matrix",
