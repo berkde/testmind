@@ -36,6 +36,7 @@ Our mission is to streamline the software testing process by automatically gener
 - Interactive UI to edit, save, and export test suites in various formats
 - Visual test coverage feedback and reporting
 - Integration with popular testing frameworks and CI/CD pipelines
+- **🎤 Speech-to-Text Support**: Voice input and audio file transcription for hands-free interaction
 
 ---
 
@@ -237,6 +238,17 @@ testmind/
 5. Start the services:
    - Backend: `uvicorn app.main:app --reload`
    - Frontend: `npm start`
+
+### Speech-to-Text Features
+
+TestMIND now supports voice input for a more natural interaction experience:
+
+- **Real-time Voice Input**: Click the microphone button to start voice recognition
+- **Audio File Upload**: Upload audio files (WAV, MP3, M4A, FLAC, OGG, WEBM) for transcription
+- **Browser Compatibility**: Works with Chrome, Edge, Safari, and other modern browsers
+- **Automatic Text Insertion**: Transcribed text is automatically added to the input field
+
+**Note**: Speech recognition requires microphone permissions and works best in quiet environments.
 
 For detailed setup instructions, see the [Backend README](backend/README.md) and [Frontend README](frontend/README.md).
 
