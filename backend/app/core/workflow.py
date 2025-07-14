@@ -90,7 +90,24 @@ class TestMindWorkflow(Workflow):
         {context_str}
         
         Determine if this input should trigger matrix generation or continue conversation.
-        Look for keywords like 'matrix', 'generate matrix', 'matrix generation', 'generate table', 'test matrix'.
+        
+        CRITICAL: Only treat DIRECT COMMANDS as matrix generation requests. Look for these patterns:
+        - Direct action commands: 'generate', 'create', 'build', 'make', 'show me', 'give me', 'provide'
+        - Matrix-related terms: 'matrix', 'table', 'test case table', 'test matrix', 'test cases'
+        - Example requests: 'example', 'sample', 'demonstration', 'illustration'
+        - Testing terms: 'test cases', 'test scenarios', 'testing workflow', 'test plan'
+        
+        Questions, help requests, and general inquiries should be conversational.
+        
+        Examples that should trigger matrix generation (DIRECT COMMANDS):
+        - "Generate an example test case table" → MATRIX_GENERATION
+        - "Create a test matrix" → MATRIX_GENERATION
+        - "Show me a test case table" → MATRIX_GENERATION
+        
+        Examples that should be CONVERSATIONAL:
+        - "Can you help me generate a table today?" → CONVERSATION (offer help, ask for details)
+        - "How do I create a test matrix?" → CONVERSATION (explain the process)
+        - "Help me understand test cases" → CONVERSATION (explain concepts)
         
         If matrix generation is needed, respond with: MATRIX_GENERATION: [processed input]
         If conversation should continue, respond with: CONVERSATION: [your response]
@@ -191,15 +208,15 @@ class TestMindWorkflow(Workflow):
                 line = line.strip()
                 if line.startswith("- ") or line.startswith("* "):
                     persona = line[2:].strip()
-                    if persona and persona not in personas:
+                    if persona and persona not in personas and persona != "":
                         personas.append(persona)
                 elif line.startswith("1. ") or line.startswith("2. ") or line.startswith("3. ") or line.startswith("4. ") or line.startswith("5. "):
                     persona = line[3:].strip()
-                    if persona and persona not in personas:
+                    if persona and persona not in personas and persona != "":
                         personas.append(persona)
-                elif line and not line.startswith("**") and not line.startswith("Transitions:"):
+                elif line and not line.startswith("**") and not line.startswith("Transitions:") and not line.startswith("CRITICAL") and not line.startswith("Example"):
                     persona = line.strip()
-                    if persona and persona not in personas and len(persona) > 0:
+                    if persona and persona not in personas and len(persona) > 0 and persona != "":
                         personas.append(persona)
 
             if "**Transitions:**" in response_text:
@@ -232,10 +249,20 @@ class TestMindWorkflow(Workflow):
 
         logger.info(f"Parsed transitions: {transitions}")
         logger.info(f"Parsed personas: {personas}")
+        logger.info(f"Number of transitions found: {len(transitions)}")
+        logger.info(f"Number of personas found: {len(personas)}")
 
-        if not result or not transitions or not personas:
-            logger.error('Invalid agent response or parsing failed')
-            return ErrorEvent(message='TestMind was unable to interpret your request, Try rephrasing.')
+        if not result:
+            logger.error('No result from question agent')
+            return ErrorEvent(message='TestMind was unable to process your request. Please try again.')
+            
+        if not transitions:
+            logger.error('No transitions extracted from input')
+            return ErrorEvent(message='TestMind could not identify any transitions in your request. Please provide specific transition details like "from new to in-progress".')
+            
+        if not personas:
+            logger.error('No personas extracted from input')
+            return ErrorEvent(message='TestMind could not identify any personas in your request. Please provide specific personas like "manager, developer, hr".')
 
         if len(transitions) < 1 or not isinstance(transitions, list) or len(personas) < 1 or not isinstance(personas, list):
             return ErrorEvent(message="Invalid length of personas or transitions in your query to generate a table.")
@@ -327,10 +354,21 @@ class TestMindWorkflow(Workflow):
         logger.info(f"Validating test matrix with {len(ev.matrix_data)} transitions.")
         ctx.write_event_to_stream(ProgressEvent(msg="Validating generated matrix and explanation..."))
 
+        user_input = await ctx.store.get('user_input', '')
+        
         result = await self.report_agent.achat(f"""
-            Matrix Data: {ev.matrix_data}
-            Explanation: {ev.explanation}
-            Please Provide Recommendations and Guidelines to improve the results if necessary.
+        Original User Input: {user_input}
+        
+        Generated Matrix Data: {ev.matrix_data}
+        Matrix Explanation: {ev.explanation}
+        
+        Please analyze this specific matrix and provide:
+        1. A detailed summary of what was generated based on the user's actual input
+        2. An explanation of how the matrix addresses the user's specific requirements
+        3. Practical recommendations for testing this specific workflow
+        4. Quality assessment of the generated matrix
+        
+        Focus on the actual transitions, personas, and relationships provided by the user.
         """)
 
         logger.info(f"Validation result received: {result}")
