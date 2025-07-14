@@ -92,3 +92,19 @@ class LLMUnsatisfiedError(BaseModel):
 
 class UserInputSchema(BaseModel):
     text: Annotated[str, StringConstraints(min_length=1)]
+
+
+class AudioTranscriptionResponse(BaseModel):
+    """
+    Response schema for audio transcription.
+    
+    Attributes:
+        status: Indicates whether the transcription was successful.
+        text: The transcribed text from the audio.
+        confidence: Optional confidence score for the transcription.
+        error_message: Error message if transcription failed.
+    """
+    status: Literal["success", "error"]
+    text: Optional[str] = None
+    confidence: Optional[float] = None
+    error_message: Optional[str] = None
