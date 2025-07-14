@@ -1,6 +1,45 @@
-# TestMind Frontend
+# TestMIND Frontend
 
-A modern React-based frontend for the TestMind AI-powered test case generation tool.
+<div align="center">
+  <img src="../banners/banner.png" alt="TestMIND Logo" width="200"/>
+
+  [![Backend CI](https://github.com/berkde/testmind/actions/workflows/backend.yml/badge.svg)](https://github.com/berkde/testmind/actions/workflows/backend.yml)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
+  [![FastAPI](https://img.shields.io/badge/FastAPI-0.68.0+-green.svg)](https://fastapi.tiangolo.com/)
+  [![React](https://img.shields.io/badge/React-17.0.2+-blue.svg)](https://reactjs.org/)
+  ![Hugging Face](https://img.shields.io/badge/-Hugging%20Face-FDEE21?logo=HuggingFace&logoColor=black)
+  ![OpenAI](https://img.shields.io/badge/-OpenAI-412991?logo=OpenAI&logoColor=white&style=flat-square)
+
+</div>
+
+## Table of Contents
+
+- [Project Description](#project-description)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Development](#development)
+- [Building for Production](#building-for-production)
+- [Usage](#usage)
+  - [Getting Started](#getting-started)
+  - [Example Interactions](#example-interactions)
+  - [Understanding the Response](#understanding-the-response)
+  - [Matrix Display](#matrix-display)
+- [Project Structure](#project-structure)
+- [Technologies Used](#technologies-used)
+- [Troubleshooting](#troubleshooting)
+  - [Connection Issues](#connection-issues)
+  - [Build Issues](#build-issues)
+  - [Performance Issues](#performance-issues)
+- [Contributing](#contributing)
+
+## Project Description
+
+**TestMIND** (Test Management, Integration, and Natural Development) is an AI-assisted tool designed to generate structured software test cases from natural language feature descriptions. It bridges the gap between human requirements and automated testing by combining Natural Language Processing (NLP) and rule-based logic.
+
+Our mission is to streamline the software testing process by automatically generating comprehensive test suites from plain English requirements, saving development teams valuable time and ensuring thorough test coverage.
+
 
 ## Features
 
