@@ -6,7 +6,6 @@ import os
 import speech_recognition as sr
 from pydub import AudioSegment
 import tempfile
-import io
 
 router = APIRouter()
 
@@ -112,7 +111,8 @@ async def conversation(user_input: UserInputSchema):
                 "status": "success",
                 "summary": result.get('summary', 'No summary available'),
                 "recommendations": result.get('recommendations', None),
-                "matrix_data": result.get('matrix_data', {})
+                "matrix_data": result.get('matrix_data', {}),
+                "matrix_statistics": result.get('matrix_statistics', {})
             }
         else:
             response = {
