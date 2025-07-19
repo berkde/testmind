@@ -72,7 +72,8 @@ class TestMindHandler:
                         "status": "success",
                         "summary": final_result.result.get("summary", ""),
                         "recommendations": final_result.result.get("recommendations", ""),
-                        "matrix_data": final_result.result.get("matrix_data", {})
+                        "matrix_data": final_result.result.get("matrix_data", {}),
+                        "matrix_statistics": final_result.result.get("matrix_statistics", {})
                     }
 
             elif isinstance(final_result, ErrorEvent):
