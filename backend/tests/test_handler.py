@@ -62,6 +62,21 @@ async def test_handler_basic_functionality():
                 assert 'admin' in transition_data
                 assert 'guest' in transition_data
 
+                for persona_data in transition_data.values():
+                    status = persona_data.get('status', '')
+                    assert status in ['Essential', 'Optional', 'Prohibited'], f"Invalid status: {status}"
+
+        if result.get('matrix_statistics'):
+            stats = result.get('matrix_statistics', {})
+            assert 'total_combinations' in stats
+            assert 'essential_combinations' in stats
+            assert 'optional_combinations' in stats
+            assert 'prohibited_combinations' in stats
+            assert stats['total_combinations'] >= 0
+            assert stats['essential_combinations'] >= 0
+            assert stats['optional_combinations'] >= 0
+            assert stats['prohibited_combinations'] >= 0
+
         assert result.get('summary') is not None
         assert isinstance(result.get('summary'), str)
         assert len(result.get('summary', '')) > 0
@@ -86,11 +101,9 @@ async def test_handler_error_handling():
         assert result.get('message') is not None
         assert isinstance(result.get('message'), str)
     else:
-        # If successful, it should have a summary
         assert result.get('summary') is not None
         assert isinstance(result.get('summary'), str)
-        
-        # Matrix data might be minimal but should be valid if present
+
         matrix_data = result.get('matrix_data', {})
         if matrix_data:
             assert isinstance(matrix_data, dict)
