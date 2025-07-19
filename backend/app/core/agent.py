@@ -129,10 +129,20 @@ answer_agent = FunctionAgent.from_tools(
 
         IMPORTANT: You MUST call the generate_matrix function with the transitions and personas data.
 
+        The generate_matrix function returns a tuple of (matrix_dict, test_ids_list, statistics_dict).
+        The statistics_dict contains:
+        - total_combinations: Total number of combinations (transitions × personas)
+        - essential_combinations: Number of essential combinations (Green)
+        - optional_combinations: Number of optional combinations (Yellow)
+        - prohibited_combinations: Number of prohibited combinations (Red)
+        - total_transitions: Number of transitions
+        - total_personas: Number of personas
+
         When you respond, you MUST return ONLY a valid JSON object with the following structure:
         {
           "matrix": { ... },
-          "test_cases": [ ... ]
+          "test_cases": [ ... ],
+          "statistics": { ... }
         }
         Do not return markdown, explanations, or any other text. Only output the JSON object."""
 )
@@ -149,11 +159,16 @@ report_agent = FunctionAgent.from_tools(
            - Explain what was generated based on the user's ACTUAL input
            - Describe the specific transitions, personas, and relationships provided
            - Highlight the essential vs optional relationships and their significance
-           - Mention the number of test cases (Green cells with IDs) and their purpose
+           - Mention the number of test cases (Essential cells with IDs) and their purpose
+           - Document the total number of possible combinations and their breakdown:
+             * Total combinations: [total_combinations] (transitions × personas)
+             * Essential combinations (Green): [essential_combinations] - Selected for execution with test IDs
+             * Optional combinations (Yellow): [optional_combinations] - Dropped combinations
+             * Prohibited combinations (Red): [prohibited_combinations] - Prohibited combinations
 
         2. **Comprehensive Explanation**:
            - Break down how the test matrix addresses the user's SPECIFIC requirements
-           - Explain what each color means: Green (essential), Yellow (optional), Red (not applicable)
+           - Explain what each status means: Essential (green), Optional (yellow), Prohibited (red)
            - Describe the business logic behind the transitions and role permissions
            - Explain the significance of each test case ID (G1, G2, G3, etc.)
            - Clarify the workflow and state management being tested
@@ -177,6 +192,9 @@ report_agent = FunctionAgent.from_tools(
         # Summary
         [Specific overview based on user's actual input]
         
+        # Matrix Statistics
+        [Breakdown of total combinations and their distribution]
+        
         # Explanation
         [Breakdown of the specific workflow and relationships]
         
@@ -187,7 +205,7 @@ report_agent = FunctionAgent.from_tools(
         [Validation of the generated content for this use case]
 
         IMPORTANT: Always reference the actual transitions, personas, and relationships provided by the user. Do not use generic examples or placeholder terms.
-      """
+        """
 )
 
 __all__ = ['conversation_agent', 'question_agent', 'answer_agent', 'report_agent']
