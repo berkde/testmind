@@ -174,6 +174,39 @@ const About = () => {
           </div>
         </div>
 
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-8 md:p-12 mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12 text-center">TestMind in Action</h2>
+          <div className="space-y-12">
+            <div className="text-center">
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">Interface Overview</h3>
+              <img 
+                src="/1.png"
+                alt="TestMind Interface Screenshot 1" 
+                className="w-full max-w-6xl mx-auto rounded-lg shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+                style={{ minHeight: '500px', objectFit: 'contain' }}
+              />
+            </div>
+            <div className="text-center">
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">Test Matrix Generation</h3>
+              <img 
+                src="/2.png"
+                alt="TestMind Interface Screenshot 2" 
+                className="w-full max-w-6xl mx-auto rounded-lg shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+                style={{ minHeight: '500px', objectFit: 'contain' }}
+              />
+            </div>
+            <div className="text-center">
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">Results and Export</h3>
+              <img 
+                src="/3.png"
+                alt="TestMind Interface Screenshot 3" 
+                className="w-full max-w-6xl mx-auto rounded-lg shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+                style={{ minHeight: '500px', objectFit: 'contain' }}
+              />
+            </div>
+          </div>
+        </div>
+
         <div className="text-center">
           <div className="bg-gradient-to-r from-primary-50 to-blue-50 rounded-xl p-8 md:p-12 shadow-lg border border-primary-100">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Ready to Get Started?</h2>
