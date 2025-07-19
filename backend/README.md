@@ -8,45 +8,48 @@
   [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
   [![FastAPI](https://img.shields.io/badge/FastAPI-0.68.0+-green.svg)](https://fastapi.tiangolo.com/)
   [![React](https://img.shields.io/badge/React-17.0.2+-blue.svg)](https://reactjs.org/)
-  ![Hugging Face](https://img.shields.io/badge/-Hugging%20Face-FDEE21?logo=HuggingFace&logoColor=black)
   ![OpenAI](https://img.shields.io/badge/-OpenAI-412991?logo=OpenAI&logoColor=white&style=flat-square)
-
+  ![LLaMA](https://img.shields.io/badge/-LLaMA-FF6F00?logo=Meta&logoColor=white)
+  ![Render](https://img.shields.io/badge/-Render-46E3B7?logo=Render&logoColor=white)
 </div>
 
+---
 
-This is the backend service for TestMIND, an AI-assisted tool designed to generate structured software test cases from natural language feature descriptions.
+## Project Description
 
-## Table of Contents
+**TestMIND Backend** is the FastAPI-powered backend for TestMIND, an AI-assisted tool designed to generate structured software test cases from natural language feature descriptions. It bridges the gap between human requirements and automated testing by combining advanced language models and rule-based logic.
 
-- [Overview](#overview)
-- [Technology Stack](#technology-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Environment Setup](#environment-setup)
-- [Development](#development)
-  - [Running the Server](#running-the-server)
-  - [API Documentation](#api-documentation)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
+- Processes natural language requirements
+- Generates test cases using OpenAI GPT API
+- Implements AllPairs test reduction
+- Provides RESTful API endpoints for the frontend
 
-## Overview
+---
 
-The TestMIND backend is responsible for:
-- Processing natural language requirements
-- Generating test cases using NLP and AI models
-- Implementing AllPairs test reduction
-- Providing RESTful API endpoints for the frontend
+## Features
+- Generate positive, negative & edge test cases from natural language descriptions
+- AllPairs test reduction to optimize test suite size
+- API endpoints for test matrix generation and feedback
+- CORS enabled for frontend-backend communication
+- Deployed as a Web Service on Render
 
-## Technology Stack
+---
 
-- **Python**: Main programming language
-- **FastAPI**: Web framework for building APIs
-- **HuggingFace Transformers**: NLP models and pipelines
-- **OpenAI**: GPT API integration for advanced language processing
-- **Pytest**: Testing framework
+## Architecture
+
+<details>
+<summary>Click to expand</summary>
+
+<pre>
+graph TD
+A[Natural Language Requirements] --> B[FastAPI Backend]
+B --> C[OpenAI GPT API]
+C --> D[Test Case Generator]
+D --> E[React Frontend (UI)]
+</pre>
+</details>
+
+---
 
 ## Project Structure
 
@@ -90,103 +93,90 @@ backend/
     └── test_simple.py
 ```
 
+---
+
 ## Getting Started
 
 ### Prerequisites
-
 - Python 3.11 or higher
 - pip (Python package installer)
 
 ### Installation
-
 1. Clone the repository:
    ```bash
    git clone https://github.com/berkde/testmind.git
    cd testmind/backend
    ```
-
 2. Create a virtual environment:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
-
 3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
 ### Environment Setup
-
 1. Create a `.env` file in the backend directory with the following variables:
    ```
-   # API Keys
    OPENAI_API_KEY=your_openai_api_key
-   HUGGINGFACE_API_KEY=your_huggingface_api_key
-   
-   # App Configuration
-   DEBUG=True
-   API_PREFIX=/api/v1
+   # Add any other required secrets here
    ```
+
+---
 
 ## Development
 
 ### Running the Server
-
 Start the development server:
-
 ```bash
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
-
 The server will be available at http://localhost:8000.
 
 ### API Documentation
-
 FastAPI automatically generates interactive API documentation:
-
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
-## Testing
-
-Run tests using pytest:
-
-```bash
-pytest
-```
-
-For more verbose output:
-
-```bash
-pytest -v
-```
-
-To run specific tests:
-
-```bash
-pytest tests/test_generator.py
-```
+---
 
 ## Deployment
 
-The application is configured to be deployed using GitHub Actions. The workflow is defined in `.github/workflows/backend.yml`.
+This backend is deployed as a Render Web Service. For production, Render will set the `$PORT` environment variable automatically. Use this start command in Render:
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
 
-For manual deployment:
+---
 
-1. Build the Docker image:
-   ```bash
-   docker build -t testmind-backend .
-   ```
+## API Endpoints
+- Main endpoint: `POST /api/mind` (see [docs/api.md](docs/api.md) for full details)
+- Health check: `GET /api/health`
 
-2. Run the container:
-   ```bash
-   docker run -p 8000:8000 testmind-backend
-   ```
+---
+
+## Testing
+
+Run all tests:
+```bash
+python3 -m pytest tests/ -v
+```
+Run a specific test:
+```bash
+python3 -m pytest tests/test_handler.py::test_handler_basic_functionality -v
+```
+
+---
 
 ## Contributing
-
 1. Create a feature branch from the development branch
 2. Make your changes
 3. Write or update tests
 4. Submit a pull request to the development branch
+
+---
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.
