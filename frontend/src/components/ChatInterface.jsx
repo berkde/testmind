@@ -190,10 +190,10 @@ const ChatInterface = () => {
     }
   };
 
-  const handleExportMatrix = (matrixData, summary, recommendations) => {
+  const handleExportMatrix = (matrixData, summary, recommendations, matrixStatistics) => {
     const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
     const filename = `testmind-matrix-${timestamp}.xlsx`;
-    exportToExcel(matrixData, summary, recommendations, filename);
+    exportToExcel(matrixData, matrixStatistics, summary, recommendations, filename);
   };
 
   const handleExportConversation = () => {
@@ -271,7 +271,7 @@ const ChatInterface = () => {
                               {copiedId === message.id ? <Check size={14} /> : <Copy size={14} />}
                             </button>
                             <button
-                              onClick={() => handleExportMatrix(response.matrix_data, response.summary, response.recommendations)}
+                              onClick={() => handleExportMatrix(response.matrix_data, response.summary, response.recommendations, response.matrix_statistics)}
                               className="text-green-600 hover:text-green-700 p-1 rounded"
                               title="Export to Excel"
                             >
@@ -279,7 +279,7 @@ const ChatInterface = () => {
                             </button>
                           </div>
                         </div>
-                        <MatrixDisplay matrixData={response.matrix_data} />
+                        <MatrixDisplay matrixData={response.matrix_data} matrixStatistics={response.matrix_statistics} />
                       </div>
                     )}
                   </div>
@@ -446,7 +446,7 @@ const ChatInterface = () => {
   );
 };
 
-const MatrixDisplay = ({ matrixData }) => {
+const MatrixDisplay = ({ matrixData, matrixStatistics }) => {
   const transitions = Object.keys(matrixData);
   const personas = new Set();
   
@@ -459,51 +459,79 @@ const MatrixDisplay = ({ matrixData }) => {
   const personaArray = Array.from(personas);
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full border border-gray-300">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border border-gray-300 px-3 py-2 text-left font-medium">Transition</th>
-            {personaArray.map(persona => (
-              <th key={persona} className="border border-gray-300 px-3 py-2 text-left font-medium">
-                {persona}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {transitions.map(transition => (
-            <tr key={transition}>
-              <td className="border border-gray-300 px-3 py-2 font-medium bg-gray-50">
-                {transition}
-              </td>
-              {personaArray.map(persona => {
-                const data = matrixData[transition][persona];
-                const status = data?.status || 'Unknown';
-                const statusColor = {
-                  'Green': 'bg-green-100 text-green-800',
-                  'Yellow': 'bg-yellow-100 text-yellow-800',
-                  'Red': 'bg-red-100 text-red-800',
-                  'Unknown': 'bg-gray-100 text-gray-800'
-                }[status] || 'bg-gray-100 text-gray-800';
-                
-                return (
-                  <td key={persona} className="border border-gray-300 px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${statusColor}`}>
-                        {status}
-                      </span>
-                      {data?.id && (
-                        <span className="text-xs text-gray-500">({data.id})</span>
-                      )}
-                    </div>
-                  </td>
-                );
-              })}
+    <div>
+      {/* Statistics Section */}
+      {matrixStatistics && Object.keys(matrixStatistics).length > 0 && (
+        <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <h5 className="font-medium text-blue-900 mb-2 text-sm">Matrix Statistics</h5>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+            <div className="text-center">
+              <div className="font-semibold text-blue-800">{matrixStatistics.total_combinations || 0}</div>
+              <div className="text-blue-600">Total Combinations</div>
+            </div>
+            <div className="text-center">
+              <div className="font-semibold text-green-800">{matrixStatistics.essential_combinations || 0}</div>
+              <div className="text-green-600">Essential (Green)</div>
+            </div>
+            <div className="text-center">
+              <div className="font-semibold text-yellow-800">{matrixStatistics.optional_combinations || 0}</div>
+              <div className="text-yellow-600">Optional (Yellow)</div>
+            </div>
+            <div className="text-center">
+              <div className="font-semibold text-red-800">{matrixStatistics.prohibited_combinations || 0}</div>
+              <div className="text-red-600">Prohibited (Red)</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Matrix Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full border border-gray-300">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border border-gray-300 px-3 py-2 text-left font-medium">Transition</th>
+              {personaArray.map(persona => (
+                <th key={persona} className="border border-gray-300 px-3 py-2 text-left font-medium">
+                  {persona}
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {transitions.map(transition => (
+              <tr key={transition}>
+                <td className="border border-gray-300 px-3 py-2 font-medium bg-gray-50">
+                  {transition}
+                </td>
+                {personaArray.map(persona => {
+                  const data = matrixData[transition][persona];
+                  const status = data?.status || 'Unknown';
+                  const statusColor = {
+                    'Essential': 'bg-green-100 text-green-800',
+                    'Optional': 'bg-yellow-100 text-yellow-800',
+                    'Prohibited': 'bg-red-100 text-red-800',
+                    'Unknown': 'bg-gray-100 text-gray-800'
+                  }[status] || 'bg-gray-100 text-gray-800';
+                  
+                  return (
+                    <td key={persona} className="border border-gray-300 px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${statusColor}`}>
+                          {status}
+                        </span>
+                        {data?.id && (
+                          <span className="text-xs text-gray-500">({data.id})</span>
+                        )}
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
