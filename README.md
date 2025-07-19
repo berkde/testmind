@@ -8,8 +8,9 @@
   [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
   [![FastAPI](https://img.shields.io/badge/FastAPI-0.68.0+-green.svg)](https://fastapi.tiangolo.com/)
   [![React](https://img.shields.io/badge/React-17.0.2+-blue.svg)](https://reactjs.org/)
-  ![Hugging Face](https://img.shields.io/badge/-Hugging%20Face-FDEE21?logo=HuggingFace&logoColor=black)
   ![OpenAI](https://img.shields.io/badge/-OpenAI-412991?logo=OpenAI&logoColor=white&style=flat-square)
+  ![LLaMA](https://img.shields.io/badge/-LLaMA-FF6F00?logo=Meta&logoColor=white)
+  ![Render](https://img.shields.io/badge/-Render-46E3B7?logo=Render&logoColor=white)
 
 
 </div>
@@ -36,20 +37,21 @@ Our mission is to streamline the software testing process by automatically gener
 - Interactive UI to edit, save, and export test suites in various formats
 - Visual test coverage feedback and reporting
 - Integration with popular testing frameworks and CI/CD pipelines
-- **🎤 Speech-to-Text Support**: Voice input and audio file transcription for hands-free interaction
+- Speech-to-Text Support: Voice input and audio file transcription for hands-free interaction
 
 ---
 
 ##  Tech Stack
 
-| Layer       | Tech                      |
-|------------|---------------------------|
-| Backend    | Python, FastAPI, HuggingFace Transformers, OpenAI |
-| Frontend   | React, TypeScript         |
-| ML Models  | Custom NLP Pipelines via HuggingFace |
-| API Access | OpenAI GPT API            |
-| Testing    | Pytest, React Testing Library |
-| CI/CD      | GitHub Actions            |
+| Layer       | Tech                               |
+|------------|------------------------------------|
+| Backend    | Python, FastAPI, OpenAI            |
+| Frontend   | React, JavaScript                  |
+| API Access | OpenAI GPT API                     |
+| Speech Recognition | Google Web Speech API        |
+| Testing    | Pytest, React Testing Library      |
+| CI/CD      | GitHub Actions                     |
+| Security/Analysis | CodeQL                             |
 
 ---
 
@@ -60,60 +62,52 @@ Our mission is to streamline the software testing process by automatically gener
 
 <pre>
 graph TD
-A[Natural Language Requirements] --> B[FastAPI Backend]
-B --> C[HuggingFace NLP Pipeline]
-C --> D[OpenAI GPT API]
-B --> E[Test Case Generator]
-D --> G[React Frontend (UI)]
+A[User (Text/Voice)] --> F[React Frontend (UI)]
+F -->|API Request| --> B[FastAPI Backend]
+B -->|Prompt| --> C[OpenAI GPT API]
+C -->|LLM Output| --> D[Test Case Generator]
+D -->|Test Matrix| --> F
+F --> A
 </pre> </details>
 
 ## System Connectivity Diagram
 
-
 <details>
 <summary>Click to expand</summary>
 
-This diagram illustrates how user input flows through the TestMIND system, from the React frontend to the FastAPI backend, through the service layer, and back to the user. It also references a potential future AWS deployment architecture.
+This diagram illustrates how user input flows through the TestMIND system, now deployed on Render. Both the React frontend and FastAPI backend are hosted as separate services on Render, communicating over HTTPS. The backend may call external APIs (OpenAI, HuggingFace) as before.
 
 ```mermaid
 graph TD
     subgraph User
         A["Web Browser"]
     end
-    subgraph Frontend
-        B["React App (TypeScript)"]
+    subgraph Render Frontend
+        B["React App (Vite, Static Site)"]
     end
-    subgraph Backend
+    subgraph Render Backend
         C["FastAPI API Server"]
         D["Pydantic Schemas (Validation)"]
         E["Service Layer (Test Generator, NLP, AllPairs)"]
         F["External APIs (OpenAI, HuggingFace)"]
     end
-    subgraph Cloud["(Future) AWS Deployment"]
-        G["S3 (Static Frontend)"]
-        H["EC2/ECS/Lambda (Backend)"]
-        I["API Gateway"]
-    end
 
-    A -->|"Input requirements"| B
-    B -->|"POST /api/v1/generate"| C
+    A -->|"HTTPS"| B
+    B -->|"API Request (HTTPS)"| C
     C --> D
     D --> E
     E --> F
     F --> E
     E -->|"Response (test cases, feedback)"| C
-    C -->|"API Response"| B
+    C -->|"API Response (HTTPS)"| B
     B -->|"Display results"| A
 
-    %% Cloud deployment references
-    B -.-> G
-    C -.-> H
-    H -.-> I
-    G -.-> I
-    I -.-> A
+    %% Hosting context
+    B -.->|"Hosted on Render (Static Site)"| B
+    C -.->|"Hosted on Render (Web Service)"| C
 ```
 
-*Solid arrows* show the main data flow. *Dashed arrows* indicate possible AWS deployment targets for frontend and backend components.
+*Solid arrows* show the main data flow. *Dashed arrows* indicate hosting context on Render for both frontend and backend services.
 </details>
 
 ## Repository Structure
@@ -200,6 +194,14 @@ testmind/
 </pre>
 </details>
 
+## TestMIND Interface in Action
+
+<div align="center">
+  <img src="banners/1.png" alt="TestMind Interface Screenshot 1" width="1100" style="max-width: 100%; height: auto; border-radius: 0.5rem; margin: auto;"/>
+  <br/><br/>
+  <img src="banners/2.png" alt="TestMind Interface Screenshot 2" width="1100" style="max-width: 100%; height: auto;border-radius: 0.5rem; margin: auto;"/>
+</div>
+
 ## Getting Started
 
 ### Prerequisites
@@ -207,7 +209,6 @@ testmind/
 - Python 3.11
 - Node.js 14.x or higher
 - OpenAI API key
-- HuggingFace API key (optional)
 
 ### Quick Start
 
