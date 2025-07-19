@@ -8,7 +8,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://testmind-frontend.onrender.com"],
+    allow_origins=["https://testmind-u11n.onrender.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
