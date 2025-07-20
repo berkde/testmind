@@ -232,9 +232,9 @@ class TestMindWorkflow(Workflow):
                         elif "essential_for:" in part or "Essential for:" in part:
                             key = "essential_for:" if "essential_for:" in part else "Essential for:"
                             transition["essential_for"] = part.split(key)[1].strip()
-                        elif "optional_for:" in part or "Optional for:" in part:
-                            key = "optional_for:" if "optional_for:" in part else "Optional for:"
-                            transition["optional_for"] = part.split(key)[1].strip()
+                        elif "optional_for:" in part or "Optional for:" in part or "redundant_for:" in part or "Redundant for:" in part:
+                            key = "optional_for:" if "optional_for:" in part else ("Optional for:" if "Optional for:" in part else ("redundant_for:" if "redundant_for:" in part else "Redundant for:"))
+                            transition["redundant_for"] = part.split(key)[1].strip()
 
                     if len(transition) >= 4:
                         transitions.append(transition)
