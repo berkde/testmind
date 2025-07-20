@@ -163,12 +163,12 @@ report_agent = FunctionAgent.from_tools(
            - Document the total number of possible combinations and their breakdown:
              * Total combinations: [total_combinations] (transitions × personas)
              * Essential combinations (Green): [essential_combinations] - Selected for execution with test IDs
-             * Optional combinations (Yellow): [optional_combinations] - Dropped combinations
+             * Redundant combinations (Yellow): [optional_combinations] - Dropped combinations
              * Prohibited combinations (Red): [prohibited_combinations] - Prohibited combinations
 
         2. **Comprehensive Explanation**:
            - Break down how the test matrix addresses the user's SPECIFIC requirements
-           - Explain what each status means: Essential (green), Optional (yellow), Prohibited (red)
+           - Explain what each status means: Essential (green), Redundant (yellow), Prohibited (red)
            - Describe the business logic behind the transitions and role permissions
            - Explain the significance of each test case ID (G1, G2, G3, etc.)
            - Clarify the workflow and state management being tested
