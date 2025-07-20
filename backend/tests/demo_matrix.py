@@ -91,15 +91,15 @@ async def demo_matrix_generation():
                 print(f"• Essential test cases: {total_test_cases}")
                 optional_cases = sum(1 for transition_data in matrix_data.values() 
                                    for details in transition_data.values() 
-                                   if details.get('status') == 'Optional')
-                print(f"• Optional test cases: {optional_cases}")
+                                   if details.get('status') == 'Redundant')
+                print(f"• Redundant test cases: {optional_cases}")
 
                 matrix_statistics = result.get('matrix_statistics', {})
                 if matrix_statistics:
                     print("\n📊 Matrix Statistics:")
                     print(f"• Total combinations: {matrix_statistics.get('total_combinations', 0)}")
                     print(f"• Essential combinations (Green): {matrix_statistics.get('essential_combinations', 0)}")
-                    print(f"• Optional combinations (Yellow): {matrix_statistics.get('optional_combinations', 0)}")
+                    print(f"• Redundant combinations (Yellow): {matrix_statistics.get('optional_combinations', 0)}")
                     print(f"• Prohibited combinations (Red): {matrix_statistics.get('prohibited_combinations', 0)}")
                 
             else:
