@@ -64,7 +64,7 @@ async def test_handler_basic_functionality():
 
                 for persona_data in transition_data.values():
                     status = persona_data.get('status', '')
-                    assert status in ['Essential', 'Optional', 'Prohibited'], f"Invalid status: {status}"
+                    assert status in ['Essential', 'Redundant', 'Prohibited'], f"Invalid status: {status}"
 
         if result.get('matrix_statistics'):
             stats = result.get('matrix_statistics', {})
