@@ -7,7 +7,7 @@ logger = getLogger(__name__)
 
 class Status(str, Enum):
     ESSENTIAL = "Essential"
-    OPTIONAL = "Optional"
+    REDUNDANT = "Redundant"
     PROHIBITED = "Prohibited"
 
 def generate_matrix(transitions: List[Dict], personas: List[str]) -> Tuple[Dict, List[Dict], Dict]:
@@ -55,7 +55,7 @@ def generate_matrix(transitions: List[Dict], personas: List[str]) -> Tuple[Dict,
                 test_counter += 1
                 statistics['essential_combinations'] += 1
             elif persona == optional:
-                matrix[transition_key][persona] = {"status": Status.OPTIONAL}
+                matrix[transition_key][persona] = {"status": Status.REDUNDANT}
                 statistics['optional_combinations'] += 1
             else:
                 matrix[transition_key][persona] = {"status": Status.PROHIBITED}
