@@ -80,7 +80,7 @@ class TestMindHandler:
                 logger.warning("Workflow failed due to error event.")
                 return {
                     "status": "error",
-                    "message": final_result.message
+                    "message": "We couldn't process your request. Please check your input and try again."
                 }
 
             elif isinstance(final_result, dict):
@@ -115,5 +115,5 @@ class TestMindHandler:
             logger.exception("Unexpected error during workflow execution.")
             return {
                 "status": "error",
-                "message": f"Workflow execution failed: {str(e)}"
+                "message": "Sorry, something went wrong while processing your request. Please try again later."
             }
