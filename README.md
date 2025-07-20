@@ -259,15 +259,6 @@ For detailed setup instructions, see the [Backend README](backend/README.md) and
   <table>
     <tr>
       <td align="center">
-        <a href="https://github.com/lms651">
-          <img src="./banners/lori.png" width="100px;" alt="Team Member"/>
-          <br />
-          <sub><b>Lori Schmidt</b></sub>
-        </a>
-        <br />
-        <sub>Team Lead</sub>
-      </td>
-      <td align="center">
         <a href="https://github.com/berkde">
           <img src="./banners/berk.png" width="100px;" alt="Berk Delibalta"/>
           <br />
@@ -277,13 +268,13 @@ For detailed setup instructions, see the [Backend README](backend/README.md) and
         <sub>Lead Engineer and Architect</sub>
       </td>
       <td align="center">
-        <a href="https://github.com/adamc95">
-          <img src="./banners/adam.png" width="100px;" alt="Team Member"/>
+        <a href="https://github.com/lms651">
+          <img src="./banners/lori.png" width="100px;" alt="Team Member"/>
           <br />
-          <sub><b>Adam Cebulski</b></sub>
+          <sub><b>Lori Schmidt</b></sub>
         </a>
         <br />
-        <sub>QA Engineer</sub>
+        <sub>Team Lead</sub>
       </td>
       <td align="center">
         <a href="https://github.com/jxc1687">
@@ -293,6 +284,15 @@ For detailed setup instructions, see the [Backend README](backend/README.md) and
         </a>
         <br />
         <sub>Frontend Engineer</sub>
+      </td>
+      <td align="center">
+        <a href="https://github.com/adamc95">
+          <img src="./banners/adam.png" width="100px;" alt="Team Member"/>
+          <br />
+          <sub><b>Adam Cebulski</b></sub>
+        </a>
+        <br />
+        <sub>Estimator</sub>
       </td>
     </tr>
   </table>
