@@ -33,11 +33,11 @@ def mock_matrix_response():
         "matrix": {
             "login→dashboard": {
                 "admin": {"status": "Essential", "id": "G1"},
-                "guest": {"status": "Optional"}
+                "guest": {"status": "Redundant"}
             },
             "dashboard→logout": {
                 "admin": {"status": "Essential", "id": "G2"},
-                "guest": {"status": "Optional"}
+                "guest": {"status": "Redundant"}
             }
         },
         "test_cases": [
