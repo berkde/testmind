@@ -121,11 +121,8 @@ async def conversation(user_input: UserInputSchema):
             }
             
         return JSONResponse(content=response)
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
+    except Exception:
         return JSONResponse(content={
             "status": "error",
-            "error_message": str(e),
-            "traceback": traceback.format_exc()
+            "error_message": "Sorry, something went wrong while processing your request. Please check your input or try again later."
         }, status_code=500)
