@@ -33,7 +33,7 @@ class Settings(BaseSettings):
         default=AgentModelConfig(
             model="gpt-4",
             temperature=0.8,
-            max_tokens=4000
+            max_tokens=2000
         ),
         description="Configuration for the conversation agent"
     )
@@ -42,7 +42,7 @@ class Settings(BaseSettings):
         default=AgentModelConfig(
             model="gpt-3.5-turbo",
             temperature=0.0,
-            max_tokens=4000
+            max_tokens=2000
         ),
         description="Configuration for the question agent"
     )
@@ -51,7 +51,7 @@ class Settings(BaseSettings):
         default=AgentModelConfig(
             model="gpt-4",
             temperature=0.2,
-            max_tokens=4000
+            max_tokens=2100
         ),
         description="Configuration for the answer agent"
     )
@@ -60,7 +60,7 @@ class Settings(BaseSettings):
         default=AgentModelConfig(
             model="gpt-3.5-turbo",
             temperature=0.3,
-            max_tokens=4000
+            max_tokens=2000
         ),
         description="Configuration for the report agent"
     )

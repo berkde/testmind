@@ -332,6 +332,18 @@ class TestMindWorkflow(Workflow):
 
         await ctx.store.set('matrix_statistics', statistics)
 
+        conversation_context = await ctx.store.get('conversation_context', {})
+        previous_matrices = conversation_context.get('previous_matrices', [])
+        previous_matrices.append({
+            'matrix_data': matrix_data,
+            'statistics': statistics,
+            'explanation': explanation
+        })
+        if len(previous_matrices) > 3:
+            previous_matrices = previous_matrices[-3:]
+        conversation_context['previous_matrices'] = previous_matrices
+        await ctx.store.set('conversation_context', conversation_context)
+
         return MatrixAnswerEvent(
             matrix_data=matrix_data,
             explanation=explanation,
@@ -388,14 +400,7 @@ class TestMindWorkflow(Workflow):
         await ctx.store.set('matrix_statistics', matrix_statistics)
 
         conversation_context = await ctx.store.get('conversation_context', {})
-        if 'previous_matrices' not in conversation_context:
-            conversation_context['previous_matrices'] = []
-        conversation_context['previous_matrices'].append({
-            'matrix_data': ev.matrix_data,
-            'matrix_statistics': matrix_statistics,
-            'summary': final_explanation,
-            'timestamp': 'now'
-        })
+        # conversation_context['previous_matrices'] = []
         await ctx.store.set('conversation_context', conversation_context)
         
         return StopEvent(result={
