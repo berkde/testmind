@@ -35,12 +35,13 @@ class TestMindWorkflow(Workflow):
         report_agent: The agent responsible for validating and summarizing the result.
     """
 
-    def __init__(self, timeout=300):
+    def __init__(self, timeout=300, conversation_context=None):
         super().__init__(timeout=timeout)
         self.conversation_agent = None
         self.report_agent = None
         self.answer_agent = None
         self.question_agent = None
+        self.conversation_context = conversation_context or {}
 
     def __repr__(self):
         return f'<TestMindWorkflow timeout={self._timeout}>'
@@ -76,7 +77,7 @@ class TestMindWorkflow(Workflow):
             logger.error("Conversation agent not initialized")
             return ErrorEvent(message="System error: Conversation agent not available")
 
-        conversation_context = await ctx.store.get('conversation_context', {})
+        conversation_context = self.conversation_context
 
         context_str = ""
         if conversation_context.get('previous_matrices'):
@@ -148,12 +149,12 @@ class TestMindWorkflow(Workflow):
         logger.info(f"Handling conversation response: {ev.response}")
         ctx.write_event_to_stream(ProgressEvent(msg="Processing conversation response..."))
 
-        await ctx.store.set('conversation_context', ev.conversation_context)
+        self.conversation_context = ev.conversation_context
 
         return StopEvent(result={
             'status': 'conversation',
             'response': ev.response,
-            'conversation_context': ev.conversation_context
+            'conversation_context': self.conversation_context
         })
 
 
@@ -332,8 +333,7 @@ class TestMindWorkflow(Workflow):
 
         await ctx.store.set('matrix_statistics', statistics)
 
-        conversation_context = await ctx.store.get('conversation_context', {})
-        previous_matrices = conversation_context.get('previous_matrices', [])
+        previous_matrices = self.conversation_context.get('previous_matrices', [])
         previous_matrices.append({
             'matrix_data': matrix_data,
             'statistics': statistics,
@@ -341,8 +341,7 @@ class TestMindWorkflow(Workflow):
         })
         if len(previous_matrices) > 3:
             previous_matrices = previous_matrices[-3:]
-        conversation_context['previous_matrices'] = previous_matrices
-        await ctx.store.set('conversation_context', conversation_context)
+        self.conversation_context['previous_matrices'] = previous_matrices
 
         return MatrixAnswerEvent(
             matrix_data=matrix_data,
@@ -399,15 +398,13 @@ class TestMindWorkflow(Workflow):
         await ctx.store.set('matrix_data', ev.matrix_data)
         await ctx.store.set('matrix_statistics', matrix_statistics)
 
-        conversation_context = await ctx.store.get('conversation_context', {})
-        # conversation_context['previous_matrices'] = []
-        await ctx.store.set('conversation_context', conversation_context)
-        
+
         return StopEvent(result={
             'summary': final_explanation,
             'recommendations': optional_recommendations,
             'matrix_data': ev.matrix_data,
             'matrix_statistics': matrix_statistics,
+            'conversation_context': self.conversation_context
         })
 
     @step
@@ -426,5 +423,6 @@ class TestMindWorkflow(Workflow):
         ctx.write_event_to_stream(ProgressEvent(msg=f"Workflow stopped due to error: {ev.message}"))
         return StopEvent(result={
             'status': 'error',
-            'message': ev.message
+            'message': ev.message,
+            'conversation_context': self.conversation_context
         })

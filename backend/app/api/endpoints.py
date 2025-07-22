@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Request
 from fastapi.responses import JSONResponse
 from ..models.schemas import UserInputSchema, AudioTranscriptionResponse
 from ..services.handler import TestMindHandler
@@ -86,7 +86,7 @@ async def transcribe_audio(audio_file: UploadFile = File(...)):
         )
 
 @router.post("/mind")
-async def conversation(user_input: UserInputSchema):
+async def conversation(user_input: UserInputSchema, request: Request):
     """
     Single endpoint for all TestMind interactions.
     
@@ -95,8 +95,13 @@ async def conversation(user_input: UserInputSchema):
     as the unified interface for all user interactions with the TestMind system.
     """
     try:
+        conversation_context = request.session.get("conversation_context", {})
+
         handler = TestMindHandler(timeout=300)
-        result = await handler.run(user_input.text)
+        result = await handler.run(user_input.text, conversation_context=conversation_context)
+
+        if "conversation_context" in result:
+            request.session["conversation_context"] = result["conversation_context"]
 
         status = result.get('status', 'unknown')
         
