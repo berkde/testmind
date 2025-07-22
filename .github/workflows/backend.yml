@@ -77,10 +77,10 @@ jobs:
           API_PREFIX: /api/v1
           HOST: 0.0.0.0
           PORT: 8000
-          ALLOWED_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+          ALLOWED_ORIGINS: http://localhost:3000,http://127.0.0.1:3000,https://testmind-u11n.onrender.com/
           OPENAI_MODEL: gpt-4
           MAX_TOKENS: 2000
           TEMPERATURE: 0.7
         run: |
-          export PYTHONPATH=./backend
-          pytest backend/tests --maxfail=2 --disable-warnings -q
+          export PYTHONPATH=.
+          pytest tests --maxfail=2 --disable-warnings -q
