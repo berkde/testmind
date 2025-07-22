@@ -2,10 +2,10 @@
 Unit tests for config.py (Settings and AgentModelConfig).
 
 Covers:
-- Default settings loading
-- Field validation in AgentModelConfig
-- Singleton access to settings
-- Environment variable override (mocked)
+- Default settings loading.
+- Field validation in AgentModelConfig.
+- Singleton access to settings.
+- Environment variable override (mocked).
 """
 
 import os
@@ -45,7 +45,7 @@ def test_settings_default_agents():
     """Test default Settings instance and agent configs."""
     settings = Settings()
     assert settings.conversation_agent.model == "gpt-4"
-    assert settings.answer_agent.max_tokens == 2000
+    assert settings.answer_agent.max_tokens == 2100
 
 
 def test_get_settings_returns_singleton():

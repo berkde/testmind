@@ -2,9 +2,9 @@
 Unit tests for event.py event models.
 
 Covers:
-- Validation of required and optional fields
-- Serialization and deserialization (round-trip)
-- Event-specific model logic and schema compliance
+- Validation of required and optional fields.
+- Serialization and deserialization (round-trip).
+- Event-specific model logic and schema compliance.
 """
 
 import pytest

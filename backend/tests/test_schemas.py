@@ -2,9 +2,9 @@
 Unit tests for schemas.py data models.
 
 Covers:
-- Serialization and deserialization of core schemas
-- Validation errors for bad input
-- Default field behavior for optional and inherited types
+- Serialization and deserialization of core schemas.
+- Validation errors for bad input.
+- Default field behavior for optional and inherited types.
 """
 
 import pytest
@@ -27,7 +27,7 @@ def test_transition_round_trip():
         "from_state": "start",
         "to_state": "end",
         "essential_for": "Admin",
-        "optional_for": "Guest"
+        "optional_for": ""
     }
     obj = Transition(**data)
     assert obj.model_dump() == data

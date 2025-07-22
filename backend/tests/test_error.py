@@ -2,9 +2,9 @@
 Unit tests for error.py models (PersonaError, TransitionError).
 
 These tests verify:
-- Correct serialization/deserialization
-- Default 'status' field behavior
-- Validation errors for missing required fields
+- Correct serialization/deserialization.
+- Default 'status' field behavior.
+- Validation errors for missing required fields.
 """
 
 import pytest
