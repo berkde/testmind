@@ -1,12 +1,12 @@
 from typing import Dict, List, Tuple, Annotated, Literal, Optional
-from pydantic import BaseModel, StringConstraints
+from pydantic import BaseModel, StringConstraints, Field
 
 
 class Transition(BaseModel):
     from_state: Annotated[str, StringConstraints(min_length=3, max_length=255)]
     to_state: Annotated[str, StringConstraints(min_length=3, max_length=255)]
     essential_for: Annotated[str, StringConstraints(min_length=2, max_length=255)]
-    optional_for: Annotated[str, StringConstraints(min_length=2, max_length=255)]
+    optional_for: Annotated[str, StringConstraints(min_length=2, max_length=255)] = Field(default="", alias="redundant_for")
 
 
 class RequestSchema(BaseModel):

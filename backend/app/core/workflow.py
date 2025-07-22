@@ -35,12 +35,13 @@ class TestMindWorkflow(Workflow):
         report_agent: The agent responsible for validating and summarizing the result.
     """
 
-    def __init__(self, timeout=300):
+    def __init__(self, timeout=300, conversation_context=None):
         super().__init__(timeout=timeout)
         self.conversation_agent = None
         self.report_agent = None
         self.answer_agent = None
         self.question_agent = None
+        self.conversation_context = conversation_context or {}
 
     def __repr__(self):
         return f'<TestMindWorkflow timeout={self._timeout}>'
@@ -72,15 +73,12 @@ class TestMindWorkflow(Workflow):
         logger.info(f'Processing conversation input: {ev.input}')
         ctx.write_event_to_stream(ProgressEvent(msg="Processing user input through conversation agent..."))
 
-        # Validate that conversation agent is available
         if not self.conversation_agent:
             logger.error("Conversation agent not initialized")
             return ErrorEvent(message="System error: Conversation agent not available")
 
-        # Get conversation context from store
-        conversation_context = await ctx.store.get('conversation_context', {})
+        conversation_context = self.conversation_context
 
-        # Prepare context for conversation agent
         context_str = ""
         if conversation_context.get('previous_matrices'):
             context_str = f"\nPrevious matrices: {conversation_context['previous_matrices']}"
@@ -117,12 +115,10 @@ class TestMindWorkflow(Workflow):
         logger.info(f"Conversation agent response: {response_text}")
 
         if "MATRIX_GENERATION:" in response_text:
-            # Extract the processed input for matrix generation
             matrix_input = response_text.split("MATRIX_GENERATION:")[1].strip()
             ctx.write_event_to_stream(ProgressEvent(msg="Matrix generation requested. Processing input..."))
             return GenerateEvent(input=matrix_input)
         elif "CONVERSATION:" in response_text:
-            # Extract the conversation response
             conversation_response = response_text.split("CONVERSATION:")[1].strip()
             return ConversationResponseEvent(
                 response=conversation_response,
@@ -131,7 +127,6 @@ class TestMindWorkflow(Workflow):
                 conversation_context=conversation_context
             )
         else:
-            # Default to conversation if unclear
             return ConversationResponseEvent(
                 response=response_text,
                 should_generate_matrix=False,
@@ -154,13 +149,12 @@ class TestMindWorkflow(Workflow):
         logger.info(f"Handling conversation response: {ev.response}")
         ctx.write_event_to_stream(ProgressEvent(msg="Processing conversation response..."))
 
-        # Store the conversation context
-        await ctx.store.set('conversation_context', ev.conversation_context)
+        self.conversation_context = ev.conversation_context
 
         return StopEvent(result={
             'status': 'conversation',
             'response': ev.response,
-            'conversation_context': ev.conversation_context
+            'conversation_context': self.conversation_context
         })
 
 
@@ -180,7 +174,6 @@ class TestMindWorkflow(Workflow):
         ctx.write_event_to_stream(ProgressEvent(msg="Processing validated input for matrix generation..."))
         logger.info("Processing validated input for matrix generation...")
 
-        # Validate that question agent is available
         if not self.question_agent:
             logger.error("Question agent not initialized")
             return ErrorEvent(message="System error: Question agent not available")
@@ -240,9 +233,9 @@ class TestMindWorkflow(Workflow):
                         elif "essential_for:" in part or "Essential for:" in part:
                             key = "essential_for:" if "essential_for:" in part else "Essential for:"
                             transition["essential_for"] = part.split(key)[1].strip()
-                        elif "optional_for:" in part or "Optional for:" in part:
-                            key = "optional_for:" if "optional_for:" in part else "Optional for:"
-                            transition["optional_for"] = part.split(key)[1].strip()
+                        elif "optional_for:" in part or "Optional for:" in part or "redundant_for:" in part or "Redundant for:" in part:
+                            key = "optional_for:" if "optional_for:" in part else ("Optional for:" if "Optional for:" in part else ("redundant_for:" if "redundant_for:" in part else "Redundant for:"))
+                            transition["redundant_for"] = part.split(key)[1].strip()
 
                     if len(transition) >= 4:
                         transitions.append(transition)
@@ -320,19 +313,35 @@ class TestMindWorkflow(Workflow):
                 response_data = json.loads(json_str)
                 matrix_data = response_data.get('matrix', {})
                 test_cases = response_data.get('test_cases', [])
+                statistics = response_data.get('statistics', {})
                 explanation = f"Matrix generated successfully with {len(test_cases)} test cases."
             elif response_str.strip().startswith('{'):
                 response_data = json.loads(response_str)
                 matrix_data = response_data.get('matrix', {})
                 test_cases = response_data.get('test_cases', [])
+                statistics = response_data.get('statistics', {})
                 explanation = f"Matrix generated successfully with {len(test_cases)} test cases."
             else:
                 matrix_data = {}
+                statistics = {}
                 explanation = f"Matrix generated. Response type: {type(response)}"
         except (json.JSONDecodeError, AttributeError) as e:
             logger.error(f"JSON parsing error: {e}")
             matrix_data = {}
+            statistics = {}
             explanation = f"Matrix generated. Response type: {type(response)}"
+
+        await ctx.store.set('matrix_statistics', statistics)
+
+        previous_matrices = self.conversation_context.get('previous_matrices', [])
+        previous_matrices.append({
+            'matrix_data': matrix_data,
+            'statistics': statistics,
+            'explanation': explanation
+        })
+        if len(previous_matrices) > 3:
+            previous_matrices = previous_matrices[-3:]
+        self.conversation_context['previous_matrices'] = previous_matrices
 
         return MatrixAnswerEvent(
             matrix_data=matrix_data,
@@ -355,20 +364,24 @@ class TestMindWorkflow(Workflow):
         ctx.write_event_to_stream(ProgressEvent(msg="Validating generated matrix and explanation..."))
 
         user_input = await ctx.store.get('user_input', '')
+        matrix_statistics = await ctx.store.get('matrix_statistics', {})
         
         result = await self.report_agent.achat(f"""
         Original User Input: {user_input}
         
         Generated Matrix Data: {ev.matrix_data}
+        Matrix Statistics: {matrix_statistics}
         Matrix Explanation: {ev.explanation}
         
         Please analyze this specific matrix and provide:
         1. A detailed summary of what was generated based on the user's actual input
-        2. An explanation of how the matrix addresses the user's specific requirements
-        3. Practical recommendations for testing this specific workflow
-        4. Quality assessment of the generated matrix
+        2. Matrix statistics breakdown including total combinations and their distribution
+        3. An explanation of how the matrix addresses the user's specific requirements
+        4. Practical recommendations for testing this specific workflow
+        5. Quality assessment of the generated matrix
         
         Focus on the actual transitions, personas, and relationships provided by the user.
+        Include the statistics in your Matrix Statistics section.
         """)
 
         logger.info(f"Validation result received: {result}")
@@ -383,21 +396,15 @@ class TestMindWorkflow(Workflow):
         await ctx.store.set('optional_recommendations', optional_recommendations)
         await ctx.store.set('final_explanation', final_explanation)
         await ctx.store.set('matrix_data', ev.matrix_data)
+        await ctx.store.set('matrix_statistics', matrix_statistics)
 
-        conversation_context = await ctx.store.get('conversation_context', {})
-        if 'previous_matrices' not in conversation_context:
-            conversation_context['previous_matrices'] = []
-        conversation_context['previous_matrices'].append({
-            'matrix_data': ev.matrix_data,
-            'summary': final_explanation,
-            'timestamp': 'now'  # In a real implementation, you'd use actual timestamp
-        })
-        await ctx.store.set('conversation_context', conversation_context)
-        
+
         return StopEvent(result={
             'summary': final_explanation,
             'recommendations': optional_recommendations,
             'matrix_data': ev.matrix_data,
+            'matrix_statistics': matrix_statistics,
+            'conversation_context': self.conversation_context
         })
 
     @step
@@ -416,5 +423,6 @@ class TestMindWorkflow(Workflow):
         ctx.write_event_to_stream(ProgressEvent(msg=f"Workflow stopped due to error: {ev.message}"))
         return StopEvent(result={
             'status': 'error',
-            'message': ev.message
+            'message': ev.message,
+            'conversation_context': self.conversation_context
         })

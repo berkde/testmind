@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Request
 from fastapi.responses import JSONResponse
 from ..models.schemas import UserInputSchema, AudioTranscriptionResponse
 from ..services.handler import TestMindHandler
@@ -6,7 +6,6 @@ import os
 import speech_recognition as sr
 from pydub import AudioSegment
 import tempfile
-import io
 
 router = APIRouter()
 
@@ -87,7 +86,7 @@ async def transcribe_audio(audio_file: UploadFile = File(...)):
         )
 
 @router.post("/mind")
-async def conversation(user_input: UserInputSchema):
+async def conversation(user_input: UserInputSchema, request: Request):
     """
     Single endpoint for all TestMind interactions.
     
@@ -96,8 +95,13 @@ async def conversation(user_input: UserInputSchema):
     as the unified interface for all user interactions with the TestMind system.
     """
     try:
+        conversation_context = request.session.get("conversation_context", {})
+
         handler = TestMindHandler(timeout=300)
-        result = await handler.run(user_input.text)
+        result = await handler.run(user_input.text, conversation_context=conversation_context)
+
+        if "conversation_context" in result:
+            request.session["conversation_context"] = result["conversation_context"]
 
         status = result.get('status', 'unknown')
         
@@ -112,7 +116,8 @@ async def conversation(user_input: UserInputSchema):
                 "status": "success",
                 "summary": result.get('summary', 'No summary available'),
                 "recommendations": result.get('recommendations', None),
-                "matrix_data": result.get('matrix_data', {})
+                "matrix_data": result.get('matrix_data', {}),
+                "matrix_statistics": result.get('matrix_statistics', {})
             }
         else:
             response = {
@@ -121,11 +126,8 @@ async def conversation(user_input: UserInputSchema):
             }
             
         return JSONResponse(content=response)
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
+    except Exception:
         return JSONResponse(content={
             "status": "error",
-            "error_message": str(e),
-            "traceback": traceback.format_exc()
+            "error_message": "Sorry, something went wrong while processing your request. Please check your input or try again later."
         }, status_code=500)

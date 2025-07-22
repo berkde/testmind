@@ -32,18 +32,26 @@ def mock_matrix_response():
     {
         "matrix": {
             "login→dashboard": {
-                "admin": {"status": "Green", "id": "G1"},
-                "guest": {"status": "Yellow"}
+                "admin": {"status": "Essential", "id": "G1"},
+                "guest": {"status": "Redundant"}
             },
             "dashboard→logout": {
-                "admin": {"status": "Green", "id": "G2"},
-                "guest": {"status": "Yellow"}
+                "admin": {"status": "Essential", "id": "G2"},
+                "guest": {"status": "Redundant"}
             }
         },
         "test_cases": [
             {"id": "G1", "transition": "login→dashboard", "persona": "admin"},
             {"id": "G2", "transition": "dashboard→logout", "persona": "admin"}
-        ]
+        ],
+        "statistics": {
+            "total_combinations": 4,
+            "essential_combinations": 2,
+            "optional_combinations": 2,
+            "prohibited_combinations": 0,
+            "total_transitions": 2,
+            "total_personas": 2
+        }
     }
     """
     mock_response.raw = mock_response.response
@@ -108,10 +116,8 @@ def sample_matrix_data():
 @pytest.fixture
 def mock_environment(monkeypatch):
     """Mock environment variables for testing."""
-    # Mock OpenAI API key
     monkeypatch.setenv("OPENAI_API_KEY", "test-api-key")
-    
-    # Mock other environment variables as needed
+
     monkeypatch.setenv("OPENAI_MODEL", "gpt-3.5-turbo")
     
     return {
@@ -123,6 +129,4 @@ def mock_environment(monkeypatch):
 @pytest.fixture(autouse=True)
 def disable_real_api_calls(monkeypatch):
     """Automatically disable real API calls during tests."""
-    # This fixture runs automatically for all tests
-    # You can add more mocking here if needed
     pass 
