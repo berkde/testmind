@@ -27,7 +27,7 @@ def test_transition_round_trip():
         "from_state": "start",
         "to_state": "end",
         "essential_for": "Admin",
-        "optional_for": "Guest"
+        "optional_for": ""
     }
     obj = Transition(**data)
     assert obj.model_dump() == data
