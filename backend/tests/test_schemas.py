@@ -2,9 +2,9 @@
 Unit tests for schemas.py data models.
 
 Covers:
-- Serialization and deserialization of core schemas
-- Validation errors for bad input
-- Default field behavior for optional and inherited types
+- Serialization and deserialization of core schemas.
+- Validation errors for bad input.
+- Default field behavior for optional and inherited types.
 """
 
 import pytest

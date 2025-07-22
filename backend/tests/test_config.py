@@ -2,10 +2,10 @@
 Unit tests for config.py (Settings and AgentModelConfig).
 
 Covers:
-- Default settings loading
-- Field validation in AgentModelConfig
-- Singleton access to settings
-- Environment variable override (mocked)
+- Default settings loading.
+- Field validation in AgentModelConfig.
+- Singleton access to settings.
+- Environment variable override (mocked).
 """
 
 import os
