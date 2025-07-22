@@ -475,7 +475,7 @@ const MatrixDisplay = ({ matrixData, matrixStatistics }) => {
             </div>
             <div className="text-center">
               <div className="font-semibold text-yellow-800">{matrixStatistics.optional_combinations || 0}</div>
-              <div className="text-yellow-600">Optional (Yellow)</div>
+              <div className="text-yellow-600">Redundant (Gray)</div>
             </div>
             <div className="text-center">
               <div className="font-semibold text-red-800">{matrixStatistics.prohibited_combinations || 0}</div>
